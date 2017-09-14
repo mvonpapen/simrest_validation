@@ -1,9 +1,7 @@
 # simrest_validation
 Simulation of resting state activity in macaque cortex and its validation with respect to experimental data
 
-
-Simulation of resting state activity in macaque cortex
-A workspace for validation of models of resting state activity in cortex by comparison of simulation results to experimental recordings
+This git repository is dedicated to the validation of models of resting state activity in cortex by comparison of simulation results to experimental recordings.
 
  
 
