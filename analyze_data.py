@@ -39,7 +39,7 @@ def covariance_analysis(sts,
         ids = np.where([neu_types[i]==nty for i in xrange(len(sts))])[0]
         pdf[nty], bins, C[nty] = get_pdf(covm, ids, binrange=binrange, nbins=nbins)
         
-    return pdf, bins
+    return pdf, bins, C
         
         
     
