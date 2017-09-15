@@ -21,17 +21,16 @@ binrange = [-0.4, 0.4]
 eiThres  = 0.5
 
 # load data
-sts = ld.load_nikos2rs(path2file = datadir)
-ld.neuron_type_separation(sts, 
-                          eiThres=eiThres,
-                          fname=class_file)
+sts = ld.load_nikos2rs(path2file  = datadir, 
+                       class_file = class_file,
+                       eiThres    = eiThres)
 
 # calculate pdf of covariances
 pdf, bins, C = ad.covariance_analysis(sts, 
-                                      binsize=binsize,
-                                      nbins=nbins,
-                                      binrange=binrange,
-                                      eiThres=eiThres)
+                                      binsize  = binsize,
+                                      nbins    = nbins,
+                                      binrange = binrange,
+                                      eiThres  = eiThres)
 
 # plot results
 ntypes = pdf.keys()

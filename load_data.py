@@ -24,6 +24,8 @@ import re
 
 def load_nikos2rs(path2file = './',
                   fname = 'i140701-004',
+                  class_file=None, 
+                  eiThres=0.4,
                   t_start = None, t_stop = None):
     '''
     Loads nikos2 resting state data.
@@ -37,7 +39,11 @@ def load_nikos2rs(path2file = './',
                                nsx_to_load = 2, load_waveforms = True)
     # load only those spike trains with annotation 'sua' = True
     sts = np.asarray([ st for st in block.segments[0].spiketrains
-                       if st.annotations['sua'] ])                           
+                       if st.annotations['sua'] ])
+    if class_file:         
+        neuron_type_separation(sts, 
+                               eiThres=eiThres,
+                               class_file=class_file)                       
     print 'Nikos2 data loaded'      
     return sts
     
@@ -45,7 +51,7 @@ def load_nikos2rs(path2file = './',
     
 
 def neuron_type_separation(sts,
-                           fname='./nikos2rs_consistency_EIw035complexc04.txt', 
+                           class_file='./nikos2rs_consistency_EIw035complexc04.txt', 
                            eiThres=0.4):
     '''
     This function loads the consistencies for each unit.
@@ -64,11 +70,10 @@ def neuron_type_separation(sts,
                    large amount of units will then not be classified.
                    
     OUTPUT:
-    eIds: list of unit ids that are putative excitatory units
-    iIds: list of unit ids that are putative inhibitory units                   
+    None                  
     '''
     Nunits = len(sts)
-    consistency = np.loadtxt(fname,
+    consistency = np.loadtxt(class_file,
                              dtype = np.float16)      
     exc = np.where(consistency >= 1 - eiThres)[0]                       
     inh = np.where(consistency <= eiThres)[0]
@@ -90,7 +95,6 @@ def neuron_type_separation(sts,
         len(inh), Nunits, float(len(inh))/Nunits*100.)
     print '{}/{} ({:0.1f}%) neurons unclassified (mixed)\n'.format(
         len(mix), Nunits, float(len(mix))/Nunits*100.)
-#    return exc, inh, mix
     
     
 
