@@ -27,15 +27,39 @@ class LeveneScore(sciunit.Score):
     
     @classmethod
     def compute(self, model):
-        #first load experimental data and store spiketrains
-        sts_exp = ld.load_nikos2rs(path2file  = './', 
-                      class_file = './simrest_validation/nikos2rs_consistency_EIw035complexc04.txt',
-                      eiThres    = 0.4)
+                      
         Cexp    = ad.cross_covariance(sts_exp, binsize = 150*ms)
         # Now pipe model and exp into actual test
         pvalue = levene(model.covar.ravel(), Cexp.ravel()).pvalue
         self.score = LeveneScore(pvalue)
         return self.score
+    
+    #################################
+    def cross_covariance(self, binsize=150*ms, minNspk=3):
+        '''
+        Calculates cross-covariances between spike trains. 
+        Auto-covariances are set to NaN.
+        
+        binsize - quantity value (time), length of bin for spike train binning
+        minNspk - minimal number of spikes in a spike train
+        
+        Returns a square array N x N of cross-covariances with the constrain, 
+            that each spike train in correlated pair has to consist of at least 
+            minNspk spikes, otherwise assigned value is NaN. 
+        '''
+        
+        binned = elephant.conversion.BinnedSpikeTrain(self.spiketrains, 
+                                                      binsize = binsize)
+        self.covar = elephant.spike_train_correlation.covariance(binned)
+        
+        for i, st in enumerate(self.spiketrains):
+            if len(st) < minNspk:
+                self.covar[i,:] = np.NaN
+                self.covar[:,i] = np.NaN
+        
+        return self.covar
+        #################################
+
     
     _description = ("Levene's test is an inferential statistic used to assess the equality of variances. "
                   + "It tests the null hypothesis that the population variances are equal "
@@ -58,8 +82,17 @@ class CovarianceTest(sciunit.Test, LeveneScore):
     Tests if the model has the same probability distribution of cross-
     covariances as observed in experimental data.
     """   
+    #first load experimental data and store spiketrains
+    sts_exp = ld.load_nikos2rs(path2file  = './', 
+                  class_file = './simrest_validation/nikos2rs_consistency_EIw035complexc04.txt',
+                  eiThres    = 0.4)
+                                       
     required_capabilities = (ProducesSpikeTrains,)
     score_type = LeveneScore # This test's 'judge' method will return a Levenecore.
+    
+
+    def format_data
+        ## CHECK DATA FORMATS OF SIM/EXP    
     
     
     def generate_prediction(self, model, verbose=False):

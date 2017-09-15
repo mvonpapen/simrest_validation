@@ -65,6 +65,7 @@ def cross_covariance(sts, binsize, minNspk=3):
         if len(st) < minNspk:
             covm[i,:] = np.NaN
             covm[:,i] = np.NaN
+        covm[i,i] = np.NaN
     
     return covm
     
