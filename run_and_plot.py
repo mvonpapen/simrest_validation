@@ -27,11 +27,11 @@ ld.neuron_type_separation(sts,
                           fname=class_file)
 
 # calculate pdf of covariances
-pdf, bins = ad.covariance_analysis(sts, 
-                                   binsize=binsize,
-                                   nbins=nbins,
-                                   binrange=binrange,
-                                   eiThres=eiThres)
+pdf, bins, C = ad.covariance_analysis(sts, 
+                                      binsize=binsize,
+                                      nbins=nbins,
+                                      binrange=binrange,
+                                      eiThres=eiThres)
 
 # plot results
 ntypes = pdf.keys()

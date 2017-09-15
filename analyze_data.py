@@ -32,11 +32,12 @@ def covariance_analysis(sts,
     '''
     covm = cross_covariance(sts, binsize=binsize)
     neu_types = get_neuron_types(sts)
-    pdf  = dict()
+    C   = dict()
+    pdf = dict()
     
     for nty in set(neu_types):
         ids = np.where([neu_types[i]==nty for i in xrange(len(sts))])[0]
-        pdf[nty], bins = get_pdf(covm, ids, binrange=binrange, nbins=nbins)
+        pdf[nty], bins, C[nty] = get_pdf(covm, ids, binrange=binrange, nbins=nbins)
         
     return pdf, bins
         
@@ -88,7 +89,7 @@ def get_pdf(C, ids,
                            range=binrange, density=True)
     bins = bins[1:]-(bins[1]-bins[0])/2
                            
-    return H, bins
+    return H, bins, Cout
     
     
     
