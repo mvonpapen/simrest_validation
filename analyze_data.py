@@ -15,8 +15,7 @@ import load_data as ld
 
 def covariance_analysis(sts, 
                         binsize  = 150*pq.ms, 
-                        binrange = [-0.3,0.3], 
-                        eiThres  = 0.4,
+                        binrange = [-0.3,0.3],
                         nbins    = 100):
     '''
     Performs a covariance analysis.

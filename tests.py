@@ -93,23 +93,20 @@ class CovarianceTest(sciunit.Test, LeveneScore):
         eiThres  = 0.4
         
         # load data
-        sts     = get_spiketrains(model)
-        sts_exp = load_data.load_nikos2rs(path2file = datadir)
-        load_data.neuron_type_separation(sts_exp, 
-                                         eiThres=eiThres,
-                                         fname=class_file)
+        sts_mod = get_spiketrains(model)
+        sts_exp = load_data.load_nikos2rs(path2file = datadir,
+                                         eiThres    = eiThres,
+                                         class_file = class_file)
         
         # calculate pdf of covariances
-        pdf, bins, Cmod = ana.covariance_analysis(sts, 
-                                                  binsize=binsize,
-                                                  nbins=nbins,
-                                                  binrange=binrange,
-                                                eiThres=eiThres)
-        pdf, bins, Cmod = ana.covariance_analysis(sts, 
-                                                  binsize  = 150*pq.ms, 
-                                                  binrange = [-0.3,0.3], 
-                                                  eiThres  = 0.4,
-                                                  nbins    = 100):
+        pdf, bins, Cexp = ana.covariance_analysis(sts_exp, 
+                                                  binsize  = binsize, 
+                                                  binrange = binrange,
+                                                  nbins    = nbins)
+        pdf, bins, Cmod = ana.covariance_analysis(sts_mod, 
+                                                  binsize  = binsize, 
+                                                  binrange = binrange,
+                                                  nbins    = nbins)
         l = LeveneScore.compute(Cmod.ravel(), Cexp.ravel()) 
         score = LeveneScore(l.score)
         score.description = "There is {} significant difference between the variances of inter spike intervals (p-value={})." \

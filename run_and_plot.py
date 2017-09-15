@@ -29,8 +29,7 @@ sts = ld.load_nikos2rs(path2file  = datadir,
 pdf, bins, C = ad.covariance_analysis(sts, 
                                       binsize  = binsize,
                                       nbins    = nbins,
-                                      binrange = binrange,
-                                      eiThres  = eiThres)
+                                      binrange = binrange)
 
 # plot results
 ntypes = pdf.keys()
