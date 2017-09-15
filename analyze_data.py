@@ -30,7 +30,6 @@ def covariance_analysis(sts,
         pdf: dictionary of probability density distributions for 
              'exc', 'inh, or 'mix'
     '''
-    ld.neuron_type_separation(sts, eiThres=eiThres)
     covm = cross_covariance(sts, binsize=binsize)
     neu_types = get_neuron_types(sts)
     pdf  = dict()

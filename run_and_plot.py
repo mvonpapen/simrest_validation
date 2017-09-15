@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 
 # set path
 datadir = '/home/papen/sciebo/RestingState/nikos2RSgivenData/'
+class_file = './nikos2rs_consistency_EIw035complexc04.txt'
 
 # set parameters
 binsize  = 150*pq.ms
@@ -21,6 +22,9 @@ eiThres  = 0.5
 
 # load data
 sts = ld.load_nikos2rs(path2file = datadir)
+ld.neuron_type_separation(sts, 
+                          eiThres=eiThres,
+                          fname=class_file)
 
 # calculate pdf of covariances
 pdf, bins = ad.covariance_analysis(sts, 
