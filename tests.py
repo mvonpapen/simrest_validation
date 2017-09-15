@@ -7,6 +7,9 @@ Created on Fri Sep 15 11:34:28 2017
 
 from scipy.stats import levene
 import sciunit
+import numpy as np
+import analyze_data as ana
+import load_data
 from quantities import ms
 
 # ======================TEST SCORE AND TEST===============================
@@ -18,8 +21,8 @@ class LeveneScore(sciunit.Score):
     
     """    
     @classmethod
-    def compute(self, model1, model2):
-        pvalue = levene(model1.spike_intervals,model2.spike_intervals).pvalue
+    def compute(self, model):
+        pvalue = levene(model.covar, exp.covar).pvalue
         self.score = LeveneScore(pvalue)
         return self.score
     
@@ -38,13 +41,12 @@ class LeveneScore(sciunit.Score):
         return 'pvalue = {:.3}'.format(self.score)
     
 
-class SpikeIntervalVariabilityTest(sciunit.Test, LeveneScore):
+class CovarianceTest(sciunit.Test, LeveneScore):
     """
-    Tests if the model in simulator A has the same spike interval homoscedasticity as that in simulator B.
-    Takes classes with attributes spiketrains which is a list of n Neo.SpikeTrains objects.
-    Produced spike intervals are stored in a single array of floats (magnitude of times in ms).
+    Tests if the model has the same probability distribution of cross-
+    covariances as observed in experimental data.
     """   
-    required_capabilities = (ProducesSpikeIntervals,) # since ProducesSpikeIntervals has only one method, one capability required for a model to take this test.  
+    required_capabilities = (ProducesSpikeTrains,)
     score_type = LeveneScore # This test's 'judge' method will return a Levenecore.
     
     def generate_prediction(self, model, verbose=False):
@@ -52,62 +54,63 @@ class SpikeIntervalVariabilityTest(sciunit.Test, LeveneScore):
         Implementation of sciunit.Test.general_prediction.
         Generates a prediction from a model using the required capabilities.
         """
-        model.produce_intervals()
+        model.produce_covar()
         return model 
     
     def validate_observation(self, observation, first_try=True):
         """
         Implementation of sciunit.Test.validate_observation.
-        Verifies that the spike times are given in ms 
-        and else tries to transform them.
+        Verifies that the pdfs are normalized to unit sum and have the same 
+        number of bins (100). If not, it tries to transform them.
         """
-        if observation.spiketrains[0].units == ms:
-            pass
 
-        elif first_try:
-            rescaled_spiketrains = []
-            for st in observation.spiketrains:
-                rescaled_spiketrains += [st.rescale('ms')]
-            observation.spiketrains = rescaled_spiketrains
-            self.validate_observation(observation, first_try=False)
-        else:
+        if not len(observation)==100:
             raise ValueError
-            
-    def compute_density_function(self, modelA, modelB, bins=100, show=True):
-        """
-        Additional function to visualize the features which are to be validated in this test.
-        """
-        if not len(modelA.spike_intervals):
-            modelA.produce_intervals()
-        if not len(modelB.spike_intervals):
-            modelB.produce_intervals()
-        # use the provided observation and the generated prediction to compute a score.
-        hist_modelA, edges = np.histogram(modelA.spike_intervals, bins=bins, density=True)
-        hist_modelB, ____  = np.histogram(modelB.spike_intervals, bins=edges, density=True)
-        if show:
-            dx = np.diff(edges)[0]
-            xvalues = edges[:-1] + dx/2.0
-            fig, ax = plt.subplots(nrows=1, ncols=1)
-            fig.tight_layout()
-            ax.plot(xvalues, hist_modelA, label=modelA.name)
-            ax.plot(xvalues, hist_modelB, label=modelB.name)
-            ax.set_xscale('log')
-            ax.set_yscale('log')
-            ax.set_xlabel('Inter-Spike Interval')
-            ax.set_ylabel('Density')
-            ax.legend();
-            return fig
+        if np.round(np.sum(observation), 5) == 1.00000:
+            pass
         else:
-            return hist_modelA, hist_modelB
+            observation = observation/float(np.sum(observation))
+            pass
+        
 
-    def compute_score(self, modelA, modelB, p_value=.05, verbose=False):
+    def compute_score(self, model, p_value=.05, verbose=False):
         '''
         Implementation of sciunit.Test.compute_score.
         Compares the observation the test was instantiated with against the
         prediction returned in the previous step.
         This comparison of quantities is cast into a score.
         '''
-        l = LeveneScore.compute(modelA, modelB) 
+        
+        # get covars from experiment
+        # set path
+        datadir    = './'
+        class_file = './simrest_validation/nikos2rs_consistency_EIw035complexc04.txt'
+        
+        # set parameters
+        binsize  = 150*pq.ms
+        nbins    = 100
+        binrange = [-0.6, 0.6]
+        eiThres  = 0.4
+        
+        # load data
+        sts     = get_spiketrains(model)
+        sts_exp = load_data.load_nikos2rs(path2file = datadir)
+        load_data.neuron_type_separation(sts_exp, 
+                                         eiThres=eiThres,
+                                         fname=class_file)
+        
+        # calculate pdf of covariances
+        pdf, bins, Cmod = ana.covariance_analysis(sts, 
+                                                  binsize=binsize,
+                                                  nbins=nbins,
+                                                  binrange=binrange,
+                                                eiThres=eiThres)
+        pdf, bins, Cmod = ana.covariance_analysis(sts, 
+                                                  binsize  = 150*pq.ms, 
+                                                  binrange = [-0.3,0.3], 
+                                                  eiThres  = 0.4,
+                                                  nbins    = 100):
+        l = LeveneScore.compute(Cmod.ravel(), Cexp.ravel()) 
         score = LeveneScore(l.score)
         score.description = "There is {} significant difference between the variances of inter spike intervals (p-value={})." \
                             .format('no' if score.score >= p_value else 'a', p_value)
