@@ -33,6 +33,47 @@ class LeveneScore(sciunit.Score):
         pvalue = levene(model.covar.ravel(), Cexp.ravel()).pvalue
         self.score = LeveneScore(pvalue)
         return self.score
+
+    
+    _description = ("Levene's test is an inferential statistic used to assess the equality of variances. "
+                  + "It tests the null hypothesis that the population variances are equal "
+                  + "(called homogeneity of variance or homoscedasticity). "
+                  + "If the resulting p-value of Levene's test is less than some significance level "
+                  + "(typically 0.05), the obtained differences in sample variances are unlikely to have "
+                  + "occurred based on random sampling from a population with equal variances.")
+    
+    
+    @property
+    def sort_key(self):
+        return self.score
+    
+    def __str__(self):
+        return 'pvalue = {:.3}'.format(self.score)
+    
+
+class CovarianceTest(sciunit.Test, LeveneScore):
+    """
+    Tests if the model has the same probability distribution of cross-
+    covariances as observed in experimental data.
+    """   
+    score_type = LeveneScore # This test's 'judge' method will return a Levenecore.
+    
+    def __init__(self,
+                 observation={},
+                 name='covartest'):
+        #first load experimental data and store spiketrains
+        sts_exp = ld.load_nikos2rs(path2file  = './', 
+                      class_file = './simrest_validation/nikos2rs_consistency_EIw035complexc04.txt',
+                      eiThres    = 0.4)
+                                           
+        required_capabilities = (ProducesSpikeTrains,)
+        sts_exp = self.format_data(sts_exp)
+        sts_exp = self.cross_covariance(sts_exp)
+
+
+    def format_data
+        ## CHECK DATA FORMATS OF SIM/EXP    
+
     
     #################################
     def cross_covariance(self, binsize=150*ms, minNspk=3):
@@ -58,42 +99,7 @@ class LeveneScore(sciunit.Score):
                 self.covar[:,i] = np.NaN
         
         return self.covar
-        #################################
-
-    
-    _description = ("Levene's test is an inferential statistic used to assess the equality of variances. "
-                  + "It tests the null hypothesis that the population variances are equal "
-                  + "(called homogeneity of variance or homoscedasticity). "
-                  + "If the resulting p-value of Levene's test is less than some significance level "
-                  + "(typically 0.05), the obtained differences in sample variances are unlikely to have "
-                  + "occurred based on random sampling from a population with equal variances.")
-    
-    
-    @property
-    def sort_key(self):
-        return self.score
-    
-    def __str__(self):
-        return 'pvalue = {:.3}'.format(self.score)
-    
-
-class CovarianceTest(sciunit.Test, LeveneScore):
-    """
-    Tests if the model has the same probability distribution of cross-
-    covariances as observed in experimental data.
-    """   
-    #first load experimental data and store spiketrains
-    sts_exp = ld.load_nikos2rs(path2file  = './', 
-                  class_file = './simrest_validation/nikos2rs_consistency_EIw035complexc04.txt',
-                  eiThres    = 0.4)
-                                       
-    required_capabilities = (ProducesSpikeTrains,)
-    score_type = LeveneScore # This test's 'judge' method will return a Levenecore.
-    
-
-    def format_data
-        ## CHECK DATA FORMATS OF SIM/EXP    
-    
+        #################################    
     
     def generate_prediction(self, model, verbose=False):
         """
@@ -120,7 +126,7 @@ class CovarianceTest(sciunit.Test, LeveneScore):
             pass
         
 
-    def compute_score(self, model, p_value=.05, verbose=False):
+    def compute_score(self, model, prediction, p_value=.05, verbose=False):
         '''
         Implementation of sciunit.Test.compute_score.
         Compares the observation the test was instantiated with against the
