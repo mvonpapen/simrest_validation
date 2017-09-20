@@ -29,9 +29,9 @@ import matplotlib.pyplot as plt
 
 class Covariance_Dist_Test(sciunit.Test):
     """
-    Tests the probability density function of cross-covariances of neural 
-    network simulation against experimental data obtained from Utah araay in 
-    (pre)motor cortex of macaque monkey during resting state
+    Tests for equal variances of cross-covariances of neural network simulation
+    against experimental data obtained from Utah array in (pre)motor cortex of 
+    macaque monkey during resting state
     """
     score_type = ## TODO ##
     id = ## TODO ##
@@ -39,12 +39,13 @@ class Covariance_Dist_Test(sciunit.Test):
     def __init__(self,
                  observation={},
                  name="Covariance dist. - resting state - motor cortex"):
-        description = ("Tests the covariance distribution of motor cortex during resting state")
+        description = ("Tests the covariance distribution of motor cortex "
+                       +"during resting state")
         self.units = quantities.um
         required_capabilities = (cap.Produces_SpikeTrains,)
 
         observation = self.format_data(observation)
-        observation = self.covar_pdf(observation)
+        observation, pdf_obs, bins_obs = self.covariance_analysis(observation)
         self.figures = []
         sciunit.Test.__init__(self, observation, name)
 
@@ -65,7 +66,8 @@ class Covariance_Dist_Test(sciunit.Test):
             try: # neo SpikeTrains?
                 assert type(st) is neo.core.spiketrain.SpikeTrain
             except:
-                raise sciunit.Error("List elements are not neo.core.spiketrain.SpikeTrains.")
+                raise sciunit.Error("List elements are not "
+                                    +"neo.core.spiketrain.SpikeTrains.")
             try: # has neu_type annotations?
                 assert 'neu_type' in st.annotations
             except:
@@ -101,7 +103,7 @@ class Covariance_Dist_Test(sciunit.Test):
         self.model_name = model.name
         prediction = model.get_sts() ## TODO ##
         prediction = self.format_data(prediction)
-        prediction = self.
+        prediction, pdf_pre, bins_pre = self.covariance_analysis
         return prediction
 
     #----------------------------------------------------------------------
@@ -155,10 +157,10 @@ class Covariance_Dist_Test(sciunit.Test):
             binrange: binrange used for histogram
             nbins: number of bins within binrange
         OUTPUT:
+            C: dictionary of exc/inh containing elements covariance matrices
             pdf: dictionary of probability density distributions for 
                  'exc' and 'inh'
             bins: bin centers of pdf
-            C: dictionary of covariance matrices
         '''
         covm = cross_covariance(sts, binsize=binsize)
         neu_types = get_neuron_types(sts)
@@ -166,8 +168,10 @@ class Covariance_Dist_Test(sciunit.Test):
         pdf = dict()        
         for nty in set(neu_types):
             ids = np.where([neu_types[i]==nty for i in xrange(len(sts))])[0]
-            pdf[nty], bins, C[nty] = get_pdf(covm, ids, binrange=binrange, nbins=nbins)       
-        return pdf, bins, C
+            C[nty], pdf[nty], bins = get_ei_covar_pdf(covm, ids, 
+                                                      binrange=binrange, 
+                                                      nbins=nbins)       
+        return C, pdf, bins
             
         
         
@@ -195,36 +199,36 @@ class Covariance_Dist_Test(sciunit.Test):
     
     
             
-    def get_pdf(C, ids, 
+    def get_ei_covar_pdf(covm, ids, 
                 binrange=[-0.3, 0.3], 
                 auto_cross='cross', 
                 nbins=80):
         '''
         Calculates probability density function of cross-covariances.
         INPUT:
-            C: square array N x N of cross-covariances
+            covm: square array N x N of cross-covariances
             ids: indices of exc-exc, inh-inh, or mix-mix covariances
             binrange: binrange used for histogram
             nbins: number of bins within binrange
         OUTPUT: 
+            C: dictionary of exc/inh containing elements covariance matrices
             pdf: dictionary of probability density distributions for 
                  'exc' and 'inh'
             bins: bin centers of pdf
-            Cout: dictionary of covariance matrices
         '''
-        Nunits, _ = np.shape(C)
+        Nunits, _ = np.shape(covm)
         if auto_cross=='cross':
-            tmp = np.copy(C)
+            tmp = np.copy(covm)
             np.fill_diagonal(tmp, np.nan)
         if auto_cross=='auto':
             di = np.diag_indices(Nunits)
             tmp     = np.nan
-            tmp[di] = C[di]
-        Cout      = tmp[ids,:][:,ids]
-        pdf, bins = np.histogram(Cout.ravel(), bins=nbins, 
+            tmp[di] = covm[di]
+        C = tmp[ids,:][:,ids].ravel()
+        pdf, bins = np.histogram(C, bins=nbins, 
                                range=binrange, density=True)
         bins = bins[1:]-(bins[1]-bins[0])/2
-        return H, bins, Cout
+        return C, pdf, bins
     
     
     
