@@ -18,7 +18,7 @@ class_file = './nikos2rs_consistency_EIw035complexc04.txt'
 binsize  = 150*pq.ms
 nbins    = 60
 binrange = [-0.4, 0.4]
-eiThres  = 0.5
+eiThres  = 0.4
 
 # load data
 sts = ld.load_nikos2rs(path2file  = datadir, 
