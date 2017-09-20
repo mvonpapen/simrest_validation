@@ -112,33 +112,35 @@ class Covariance_Dist_Test(sciunit.Test):
         """Implementation of sciunit.Test.score_prediction."""
         print "observation = ", observation
         print "prediction = ", prediction
-        self.score = sciunit.scores.ZScore.compute(observation["diameter"], prediction["diameter"])
-        self.score.description = "A simple Z-score"
+        self.score = sciunit.scores.LeveneScore.compute(observation, prediction)
+        self.score.description = "A Levene Test score"
 
         # create output directory
-        self.path_test_output = self.directory_output + 'soma_diameter_mean_sd/' + self.model_name + '/'
+        self.path_test_output = self.directory_output + 'covariance_dist_test/' + self.model_name + '/'
         if not os.path.exists(self.path_test_output):
             os.makedirs(self.path_test_output)
 
         self.observation = observation
-        self.prediction = prediction
-        # create relevant output files
-        # 1. Error Plot
-        err_plot = plots.ErrorPlot(self)
-        err_plot.xlabels = ["Soma"]
-        err_plot.ylabel = "Diameter (um)"
-        file1 = err_plot.create()
-        self.figures.append(file1)
-        # 2. Text Table
-        txt_table = plots.TxtTable(self)
-        file2 = txt_table.create()
-        self.figures.append(file2)
+        self.prediction  = prediction
+        ## TODO ##
+#        # create relevant output files
+#        # 1. Error Plot
+#        err_plot = plots.ErrorPlot(self)
+#        err_plot.xlabels = ["Soma"]
+#        err_plot.ylabel = "Diameter (um)"
+#        file1 = err_plot.create()
+#        self.figures.append(file1)
+#        # 2. Text Table
+#        txt_table = plots.TxtTable(self)
+#        file2 = txt_table.create()
+#        self.figures.append(file2)
         return self.score
 
     #----------------------------------------------------------------------
 
     def bind_score(self, score, model, observation, prediction):
-        score.related_data["figures"] = self.figures
+        ## TODO ##
+#        score.related_data["figures"] = self.figures
         return score
 
 
