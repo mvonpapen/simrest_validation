@@ -5,13 +5,13 @@ import networkunit.plots as plots
 
 import quantities
 import os
-
 import neo
+import numpy as np
+import elephant
 
 import matplotlib
 # Force matplotlib to not use any Xwindows backend.
 matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 
 
 
@@ -33,8 +33,8 @@ class Covariance_Dist_Test(sciunit.Test):
     against experimental data obtained from Utah array in (pre)motor cortex of 
     macaque monkey during resting state
     """
-    score_type = ## TODO ##
-    id = ## TODO ##
+    score_type = LeveneScore
+    id = -1## TODO ##
 
     def __init__(self,
                  observation={},
@@ -45,7 +45,7 @@ class Covariance_Dist_Test(sciunit.Test):
         required_capabilities = (cap.Produces_SpikeTrains,)
 
         observation = self.format_data(observation)
-        observation, pdf_obs, bins_obs = self.covariance_analysis(observation)
+        observation = self.covariance_analysis(observation)
         self.figures = []
         sciunit.Test.__init__(self, observation, name)
 
@@ -103,7 +103,7 @@ class Covariance_Dist_Test(sciunit.Test):
         self.model_name = model.name
         prediction = model.get_sts() ## TODO ##
         prediction = self.format_data(prediction)
-        prediction, pdf_pre, bins_pre = self.covariance_analysis
+        prediction = self.covariance_analysis
         return prediction
 
     #----------------------------------------------------------------------
@@ -113,7 +113,8 @@ class Covariance_Dist_Test(sciunit.Test):
         # pass non-NaN values to score
         x = observation
         y = prediction        
-        self.score = sciunit.scores.LeveneScore.compute(x[~numpy.isnan(x)], y[~numpy.isnan(y)])
+        self.score = sciunit.scores.LeveneScore.compute(x[~np.isnan(x)], 
+                                                        y[~np.isnan(y)])
         self.score.description = "A Levene Test score"
 
         # create output directory
@@ -124,17 +125,15 @@ class Covariance_Dist_Test(sciunit.Test):
         self.observation = observation
         self.prediction  = prediction
         ## TODO ##
-#        # create relevant output files
-#        # 1. Error Plot
-#        err_plot = plots.ErrorPlot(self)
-#        err_plot.xlabels = ["Soma"]
-#        err_plot.ylabel = "Diameter (um)"
-#        file1 = err_plot.create()
-#        self.figures.append(file1)
-#        # 2. Text Table
-#        txt_table = plots.TxtTable(self)
-#        file2 = txt_table.create()
-#        self.figures.append(file2)
+        # create relevant output files
+        # 1. Plot od pdf's
+        pdf_plot = plots.covar_pdf_ei(self)
+        file1 = pdf_plot.create()
+        self.figures.append(file1)
+        # 2. Text Table
+        txt_table = plots.mu_std_table(self)
+        file2 = txt_table.create()
+        self.figures.append(file2)
         return self.score
 
     #----------------------------------------------------------------------
@@ -148,10 +147,7 @@ class Covariance_Dist_Test(sciunit.Test):
 
     #---Functions needed to compute distribution of cov from spiketrains---
         
-    def covariance_analysis(sts, 
-                            binsize  = 150*pq.ms, 
-                            binrange = [-0.4,0.4],
-                            nbins    = 80):
+    def covariance_analysis(self, sts, binsize=150*quantities.ms):
         '''
         Performs a covariance analysis of annotated spiketrains.
         INPUT:
@@ -161,20 +157,14 @@ class Covariance_Dist_Test(sciunit.Test):
             nbins: number of bins within binrange
         OUTPUT:
             C: dictionary of exc/inh containing elements covariance matrices
-            pdf: dictionary of probability density distributions for 
-                 'exc' and 'inh'
-            bins: bin centers of pdf
         '''
-        covm = cross_covariance(sts, binsize=binsize)
-        neu_types = get_neuron_types(sts)
-        C   = dict()
-        pdf = dict()        
+        covm = self.cross_covariance(sts, binsize=binsize)
+        neu_types = self.get_neuron_types(sts)
+        C   = dict()   
         for nty in set(neu_types):
             ids = np.where([neu_types[i]==nty for i in xrange(len(sts))])[0]
-            C[nty], pdf[nty], bins = get_ei_covar_pdf(covm, ids, 
-                                                      binrange=binrange, 
-                                                      nbins=nbins)       
-        return C, pdf, bins
+            C[nty] = self.get_Cei(covm, ids)       
+        return C
             
         
         
@@ -202,36 +192,21 @@ class Covariance_Dist_Test(sciunit.Test):
     
     
             
-    def get_ei_covar_pdf(covm, ids, 
-                binrange=[-0.3, 0.3], 
-                auto_cross='cross', 
-                nbins=80):
+    def get_Cei(covm, ids):
         '''
-        Calculates probability density function of cross-covariances.
+        Calculates connections within ids of cross-covariances.
         INPUT:
             covm: square array N x N of cross-covariances
             ids: indices of exc-exc, inh-inh, or mix-mix covariances
-            binrange: binrange used for histogram
-            nbins: number of bins within binrange
         OUTPUT: 
-            C: dictionary of exc/inh containing elements covariance matrices
-            pdf: dictionary of probability density distributions for 
-                 'exc' and 'inh'
-            bins: bin centers of pdf
+            Cei: non-NaN elements of covariance matrix within ids connections
         '''
         Nunits, _ = np.shape(covm)
-        if auto_cross=='cross':
-            tmp = np.copy(covm)
-            np.fill_diagonal(tmp, np.nan)
-        if auto_cross=='auto':
-            di = np.diag_indices(Nunits)
-            tmp     = np.nan
-            tmp[di] = covm[di]
-        C = tmp[ids,:][:,ids].ravel()
-        pdf, bins = np.histogram(C, bins=nbins, 
-                               range=binrange, density=True)
-        bins = bins[1:]-(bins[1]-bins[0])/2
-        return C, pdf, bins
+        tmp = np.copy(covm)
+        np.fill_diagonal(tmp, np.nan)
+        Cei = tmp[ids,:][:,ids].ravel()
+        Cei = Cei[~np.isnan(Cei)]
+        return Cei
     
     
     
