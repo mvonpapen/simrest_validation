@@ -33,8 +33,8 @@ class Covariance_Dist_Test(sciunit.Test):
     network simulation against experimental data obtained from Utah araay in 
     (pre)motor cortex of macaque monkey during resting state
     """
-    score_type = ## TODO ##
-    id = ## TODO ##
+    # score_type = ## TODO ##
+    # id = ## TODO ##
 
     def __init__(self,
                  observation={},
@@ -101,7 +101,7 @@ class Covariance_Dist_Test(sciunit.Test):
         self.model_name = model.name
         prediction = model.get_sts() ## TODO ##
         prediction = self.format_data(prediction)
-        prediction = self.
+        # prediction = self.
         return prediction
 
     #----------------------------------------------------------------------
@@ -144,7 +144,7 @@ class Covariance_Dist_Test(sciunit.Test):
     #---Functions needed to compute distribution of cov from spiketrains---
         
     def covariance_analysis(sts, 
-                            binsize  = 150*pq.ms, 
+                            binsize  = 150*quantities.ms,
                             binrange = [-0.4,0.4],
                             nbins    = 80):
         '''

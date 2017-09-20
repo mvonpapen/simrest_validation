@@ -5,7 +5,7 @@ import seaborn as sns
 import sciunit
 
 
-class ks_distance_score(sciunit.Score):
+class ks_distance(sciunit.Score):
     """
     Kolmogorov-Smirnov-Distance D_KS
 
@@ -96,6 +96,7 @@ class ks_distance_score(sciunit.Score):
         xlim_upper += .03*(xlim_upper-xlim_lower)
         ax.set_xlim(xlim_lower, xlim_upper)
         ax.set_ylim(0, 1)
+        plt.show()
         return ax
 
     @property

@@ -1,32 +1,74 @@
 import sciunit
-from networkunit import capabilities as cap
-from networkunit import models
+#from networkunit import capabilities as cap
+#from networkunit import models
 
-class microcircuit_data_model(models.data_model, cap.ProducesCovariances):
+from networkunit.capabilities import ProducesCovariances
+from networkunit.models import data_model
+from neo.core import SpikeTrain
+from neo.io import NeoHdf5IO
+from copy import copy
+import numpy as np
+
+class cortical_microcircuit_data(data_model, ProducesCovariances):
     """
-    A model class to wrap data from already performed simulation of the
-    Potjans-Diesman cortical microcircuit model.
+    A model class to wrap network activity data (in form of spike trains) from
+    an already performed simulation of the Potjans-Diesman cortical
+    microcircuit model.
     """
     def load(self, file_path, **kwargs):
-        # ToDo: Write specific loading routine
-        self.spiketrains = spiketrains
-        return spiketrains
+        """
+        Loads spiketrains from a hdf5 file in the neo data format.
 
-    def preprocess(self, spiketrain_list, max_subsamplesize=None, **kwargs):
+        Parameters
+        ----------
+        file_path : string
+            Path to file
+        N:
+            Number of returned spiketrains. When less are found in the file empty
+            spiketrains are added; when more are found only the first N are
+            returned.
+        Returns :
+            List of neo.SpikeTrains of length N
+            """
+        # Load NEST or SpiNNaker data using NeoHdf5IO
+        if file_path[-2:] != 'h5':
+            raise IOError, 'file must be in hdf5 file in Neo format'
+        data = NeoHdf5IO(file_path)
+        self.spiketrains = data.read_block().list_children_by_class(SpikeTrain)
+        return self.spiketrains
+
+    def preprocess(self, spiketrain_list, max_subsamplesize=None,
+                   align_to_0=True, **kwargs):
         """
         Performs preprocessing on the spiketrain data according to the given
         parameters which are passed down from the test test parameters.
         """
         if spiketrain_list is not None and max_subsamplesize is not None:
-            return spiketrain_list[:max_subsamplesize]
-        return spiketrain_list
+            spiketrains = spiketrain_list[:max_subsamplesize]
+        else:
+            spiketrains = copy(spiketrain_list)
+
+        if align_to_0:
+            t_lims = [(st.t_start, st.t_stop) for st in spiketrains]
+            tmin = min(t_lims, key=lambda f: f[0])[0]
+            tmax = max(t_lims, key=lambda f: f[1])[1]
+            unit = spiketrains[0].units
+            for count, spiketrain in enumerate(spiketrains):
+                spiketrains[count] = SpikeTrain(np.array(spiketrain.tolist())*unit-tmin,
+                                                t_start=0*unit,
+                                                t_stop=tmax-tmin)
+        return spiketrains
 
     def produce_covariances(self, spiketrain_list=None, **kwargs):
         """
         overwrites function in class ProduceCovariances
         """
-        spiketrain_list = self.preprocess(spiketrain_list, **kwargs)
+        self.params.update(kwargs)
+        if spiketrain_list is None:
+            spiketrain_list = self.spiketrains
+        processed_spiketrain_list = self.preprocess(spiketrain_list, **self.params)
         # call generic function to calculate covariances from capability
-        ProducesCovariances.produce_covariances(spiketrain_list=spiketrain_list,
-                                                **kwargs)
+        return super(cortical_microcircuit_data, self)\
+            .produce_covariances(spiketrain_list=processed_spiketrain_list,
+                                 **self.params)
 

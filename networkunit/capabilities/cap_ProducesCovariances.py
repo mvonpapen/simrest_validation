@@ -1,11 +1,11 @@
 from elephant.spike_train_correlation import covariance
 from elephant.conversion import BinnedSpikeTrain
 from numpy import triu_indices
-import sciunit
-from networkunit import capabilities as cap
+from quantities import ms
+from networkunit.capabilities import ProducesSample
 
 
-class ProducesCovariances(cap.ProducesSample):
+class ProducesCovariances(ProducesSample):
     """
     A capability to produce a sample of pairwise covariances between
     spiketrains of a network.
@@ -33,15 +33,20 @@ class ProducesCovariances(cap.ProducesSample):
             of spike trains.
         -------
         """
-        try:
-            if spiketrain_list is None:
-                # assuming the class has the property 'spiketrains' and it
-                # contains a list of neo.Spiketrains
-                binned_sts = BinnedSpikeTrain(self.spiketrains, **kwargs)
-            else:
-                binned_sts = BinnedSpikeTrain(spiketrain_list, **kwargs)
-            cov_matrix = covariance(binned_sts, binary=binary)
-            idx = triu_indices(len(cov_matrix), 1)
-            return cov_matrix[idx]
-        except:
-            self.unimplemented()
+        # try:
+        def robust_BinnedSpikeTrain(spiketrains, binsize=2*ms, num_bins=None,
+                                    t_start=None, t_stop=None, **add_args):
+            return BinnedSpikeTrain(spiketrains, binsize=binsize,
+                                    num_bins=num_bins, t_start=t_start,
+                                    t_stop=t_stop)
+        if spiketrain_list is None:
+            # assuming the class has the property 'spiketrains' and it
+            # contains a list of neo.Spiketrains
+            binned_sts = robust_BinnedSpikeTrain(self.spiketrains, **kwargs)
+        else:
+            binned_sts = robust_BinnedSpikeTrain(spiketrain_list, **kwargs)
+        cov_matrix = covariance(binned_sts, binary=binary)
+        idx = triu_indices(len(cov_matrix), 1)
+        return cov_matrix[idx]
+        # except:
+        #     self.unimplemented()
