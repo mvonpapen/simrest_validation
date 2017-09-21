@@ -25,7 +25,7 @@ class mu_std_table:
         dataFile.write("Model Name: %s\n" % self.testObj.model_name)
         dataFile.write("Score Type: %s\n" % self.testObj.score.description)
         dataFile.write("------------------------------------------------------------------------------\n")
-        header_list = ["Neuron type", "Exp. mean", "Exp. std", "Model mean", "Model std"]
+        header_list = ["Neuron type", "Exp. mean", "Exp. std", "Model mean", "Model std"] #, "p-value"]
         row_list = []
         obs = self.testObj.observation
         prd = self.testObj.prediction

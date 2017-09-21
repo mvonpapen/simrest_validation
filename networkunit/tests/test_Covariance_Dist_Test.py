@@ -139,8 +139,8 @@ class Covariance_Dist_Test(sciunit.Test):
     #----------------------------------------------------------------------
 
     def bind_score(self, score, model, observation, prediction):
-        ## TODO ##
-#        score.related_data["figures"] = self.figures
+        score.related_data["figures"] = self.figures
+        ## TODO ## call also inherited bind_score function here?
         return score
 
 
