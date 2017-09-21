@@ -1,7 +1,7 @@
 import sciunit
 import sciunit.scores
 import networkunit.capabilities as cap
-import networkunit.score as netsco
+import networkunit.scores as netsco
 import networkunit.plots as plots
 
 import quantities
