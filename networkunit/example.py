@@ -2,6 +2,7 @@ import sys
 sys.path.append('../')
 
 from quantities import ms
+import matplotlib.pyplot as plt
 from networkunit.models import cortical_microcircuit_data, resting_state_data
 from networkunit.scores import ks_distance
 from networkunit.tests import covariance_test
@@ -52,4 +53,4 @@ score.describe()
 
 score.summarize()
 
-print score.summarize()
+plt.show()

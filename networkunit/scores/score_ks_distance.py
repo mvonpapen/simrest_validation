@@ -40,7 +40,7 @@ class ks_distance(sciunit.Score):
                   .format(sum(init_length)
                           - sum([len(s) for s in [sample1, sample2]])))
 
-        self.score = ks_2samp(sample1, sample2) # (DKS, pvalue)
+        self.score = ks_distance(ks_2samp(sample1, sample2)) # (DKS, pvalue)
         return self.score
 
     def plot(self, sample1, sample2, ax=None, palette=None,
