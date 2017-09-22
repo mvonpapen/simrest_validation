@@ -14,9 +14,8 @@ class covariance_test(two_sample_test):
     def generate_prediction(self, model, **kwargs):
         # call the function of the required capability of the model
         # and pass the parameters of the test class instance in case the
-        if self.params is None:
-            self.params = {}
-        self.params.update(kwargs)
+        if kwargs is None:
+            self.params.update(kwargs)
         return model.produce_covariances(**self.params)
 
     def validate_observation(self, observation):
