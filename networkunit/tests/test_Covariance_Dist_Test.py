@@ -1,6 +1,7 @@
 import sciunit
 import sciunit.scores
 import networkunit.capabilities as cap
+import networkunit.scores as netsco
 import networkunit.plots as plots
 
 import quantities
@@ -33,7 +34,7 @@ class Covariance_Dist_Test(sciunit.Test):
     against experimental data obtained from Utah array in (pre)motor cortex of 
     macaque monkey during resting state
     """
-    score_type = LeveneScore
+    score_type = netsco.LeveneScore
     id = -1## TODO ##
 
     def __init__(self,
@@ -139,8 +140,8 @@ class Covariance_Dist_Test(sciunit.Test):
     #----------------------------------------------------------------------
 
     def bind_score(self, score, model, observation, prediction):
-        ## TODO ##
-#        score.related_data["figures"] = self.figures
+        score.related_data["figures"] = self.figures
+        ## TODO ## call also inherited bind_score function here?
         return score
 
 

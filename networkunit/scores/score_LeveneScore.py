@@ -38,6 +38,7 @@ class LeveneScore(sciunit.Score):
         pvalue = dict()
         for key in prediction.keys():
             pvalue[key] = levene(prediction[key], observation[key]).pvalue
+        ## TODO ## possible to return both scores? that would be better
         max_pval = np.nanmax(pvalue.values())
         return LeveneScore(max_pval)
 
