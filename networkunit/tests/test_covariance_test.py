@@ -22,9 +22,21 @@ class covariance_test(two_sample_test):
         pass
 
     def visualize_score(self, model, ax=None, palette=None,
-                        var_name='Covariance', **kwargs):
+                        var_name='Covariance',
+                        **kwargs):
         # sets xlabel name to 'Covariance' in visualizations
         super(covariance_test,self).visualize_score(model, ax=ax,
                                                     palette=palette,
                                                     var_name=var_name,
                                                     **kwargs)
+
+    def visualize_sample(self, model=None, ax=None, bins=100, palette=None,
+                         sample_names=['observation', 'prediction'],
+                         var_name='Covariance', **kwargs):
+        # sets xlabel name to 'Covariance' in visualizations
+        super(covariance_test,self).visualize_sample(model=model, ax=ax,
+                                                     palette=palette,
+                                                     bins=bins,
+                                                     sample_names=sample_names,
+                                                     var_name=var_name,
+                                                     **kwargs)

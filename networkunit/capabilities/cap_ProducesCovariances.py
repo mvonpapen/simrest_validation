@@ -33,20 +33,20 @@ class ProducesCovariances(ProducesSample):
             of spike trains.
         -------
         """
-        # try:
-        def robust_BinnedSpikeTrain(spiketrains, binsize=2*ms, num_bins=None,
-                                    t_start=None, t_stop=None, **add_args):
-            return BinnedSpikeTrain(spiketrains, binsize=binsize,
-                                    num_bins=num_bins, t_start=t_start,
-                                    t_stop=t_stop)
-        if spiketrain_list is None:
-            # assuming the class has the property 'spiketrains' and it
-            # contains a list of neo.Spiketrains
-            binned_sts = robust_BinnedSpikeTrain(self.spiketrains, **kwargs)
-        else:
-            binned_sts = robust_BinnedSpikeTrain(spiketrain_list, **kwargs)
-        cov_matrix = covariance(binned_sts, binary=binary)
-        idx = triu_indices(len(cov_matrix), 1)
-        return cov_matrix[idx]
-        # except:
-        #     self.unimplemented()
+        try:
+            def robust_BinnedSpikeTrain(spiketrains, binsize=2*ms, num_bins=None,
+                                        t_start=None, t_stop=None, **add_args):
+                return BinnedSpikeTrain(spiketrains, binsize=binsize,
+                                        num_bins=num_bins, t_start=t_start,
+                                        t_stop=t_stop)
+            if spiketrain_list is None:
+                # assuming the class has the property 'spiketrains' and it
+                # contains a list of neo.Spiketrains
+                binned_sts = robust_BinnedSpikeTrain(self.spiketrains, **kwargs)
+            else:
+                binned_sts = robust_BinnedSpikeTrain(spiketrain_list, **kwargs)
+            cov_matrix = covariance(binned_sts, binary=binary)
+            idx = triu_indices(len(cov_matrix), 1)
+            return cov_matrix[idx]
+        except:
+            self.unimplemented()

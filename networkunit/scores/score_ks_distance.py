@@ -43,9 +43,10 @@ class ks_distance(sciunit.Score):
         self.score = ks_distance(ks_2samp(sample1, sample2)) # (DKS, pvalue)
         return self.score
 
+    @classmethod
     def plot(self, sample1, sample2, ax=None, palette=None,
              include_scatterplot=False, var_name='Measured Parameter',
-             **kwargs):
+             sample_names=['observation', 'prediction'], **kwargs):
         if ax is None:
             fig, ax = plt.subplots()
         ax.set_ylabel('CDF')
@@ -58,7 +59,8 @@ class ks_distance(sciunit.Score):
             sorted_sample = np.sort(sample)
             sorted_sample = np.append(sorted_sample[0], sorted_sample)
             CDF = (np.arange(len(sample)+1)) / float(len(sample))
-            ax.step(sorted_sample, CDF, where='post', color=palette[i])
+            ax.step(sorted_sample, CDF, where='post', color=palette[i],
+                    label=sample_names[i])
             if include_scatterplot:
                 ax.scatter(sorted_sample, [.99-i*.02]*len(sorted_sample),
                            color=palette[i], marker='D', linewidth=1)
@@ -96,7 +98,8 @@ class ks_distance(sciunit.Score):
         xlim_upper += .03*(xlim_upper-xlim_lower)
         ax.set_xlim(xlim_lower, xlim_upper)
         ax.set_ylim(0, 1)
-        plt.show()
+        plt.legend()
+        # plt.show()
         return ax
 
     @property
@@ -104,8 +107,8 @@ class ks_distance(sciunit.Score):
         return self.score
 
     def __str__(self):
-        return "\n\033[4mKolmogorov-Smirnov-Distance\033[0m" \
+        return "\n\n\033[4mKolmogorov-Smirnov-Distance\033[0m" \
              + "\n\tdatasize: {} \t {}" \
                .format(self.data_size[0], self.data_size[1]) \
-             + "\n\tD_KS = {:.3f} \t p value = {:.3f}\n" \
+             + "\n\tD_KS = {:.3f} \t p value = {:.3f}\n\n" \
                .format(self.score[0], self.score[1])

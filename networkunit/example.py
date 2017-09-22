@@ -22,7 +22,7 @@ SPINNAKER_model_data = cortical_microcircuit_data(file_path='models/data/SPINNAK
 
 # Initializing the test with the resting state data and setting the score type
 
-ks_cov_test = covariance_test(reference_data=SPINNAKER_model_data,
+ks_cov_test = covariance_test(observation_data=SPINNAKER_model_data,
                               name='KS Covariance Test',
                               max_subsamplesize=100,
                               align_to_0=True,

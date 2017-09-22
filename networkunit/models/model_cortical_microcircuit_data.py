@@ -15,7 +15,7 @@ class cortical_microcircuit_data(data_model, ProducesCovariances):
     an already performed simulation of the Potjans-Diesman cortical
     microcircuit model.
     """
-    def load(self, file_path, **kwargs):
+    def load(self, file_path, client=None, **kwargs):
         """
         Loads spiketrains from a hdf5 file in the neo data format.
 
@@ -23,17 +23,23 @@ class cortical_microcircuit_data(data_model, ProducesCovariances):
         ----------
         file_path : string
             Path to file
-        N:
-            Number of returned spiketrains. When less are found in the file empty
-            spiketrains are added; when more are found only the first N are
-            returned.
+        client :
+            When file is loaded from a collab storage a appropriate client
+            must be provided.
         Returns :
             List of neo.SpikeTrains of length N
             """
         # Load NEST or SpiNNaker data using NeoHdf5IO
         if file_path[-2:] != 'h5':
             raise IOError, 'file must be in hdf5 file in Neo format'
-        data = NeoHdf5IO(file_path)
+
+        if client is None:
+            data = NeoHdf5IO(file_path)
+        else:
+            store_path = './' + file_path.split('/')[-1]
+            client.download_file(file_path, store_path)
+            data = NeoHdf5IO(store_path)
+
         self.spiketrains = data.read_block().list_children_by_class(SpikeTrain)
         return self.spiketrains
 
