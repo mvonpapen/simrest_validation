@@ -1,6 +1,10 @@
-from networkunit.tests import two_sample_test
+import sciunit
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+from networkunit.tests.base_tests.ABCtest_two_sample_test import two_sample_test
 from networkunit.capabilities import ProducesCovariances
-from networkunit.scores import *
+from abc import ABCMeta, abstractmethod
 
 
 class covariance_test(two_sample_test):
@@ -9,13 +13,15 @@ class covariance_test(two_sample_test):
     The statistical testing method needs to be passed in form of a
     sciunit.Score as score_type on initialization.
     """
-    required_capabilites = (ProducesCovariances, )
+    __metaclass__ = ABCMeta
+
+    required_capabilities = (ProducesCovariances, )
 
     def generate_prediction(self, model, **kwargs):
         # call the function of the required capability of the model
         # and pass the parameters of the test class instance in case the
-        # if kwargs:
-        #     self.params.update(kwargs)
+        if kwargs:
+            self.params.update(kwargs)
         return model.produce_covariances(**self.params)
 
     def validate_observation(self, observation):

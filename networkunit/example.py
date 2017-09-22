@@ -5,7 +5,7 @@ from quantities import ms
 import matplotlib.pyplot as plt
 from networkunit.models import cortical_microcircuit_data, resting_state_data
 from networkunit.scores import ks_distance
-from networkunit.tests import covariance_test
+from networkunit.tests import m2m_covariance_test
 
 """
 Validation of the microcircuit model by using data of a previously
@@ -22,15 +22,17 @@ SPINNAKER_model_data = cortical_microcircuit_data(file_path='models/data/SPINNAK
 
 # Initializing the test with the resting state data and setting the score type
 
-ks_cov_test = covariance_test(observation_data=SPINNAKER_model_data,
-                              name='KS Covariance Test',
-                              max_subsamplesize=100,
-                              align_to_0=True,
-                              binsize=2 * ms,
-                              t_start=0 * ms,
-                              t_stop=10000 * ms,
-                              data_model=True,
-                              score_type=ks_distance)
+class cov_test_2msbins_100sample(m2m_covariance_test):
+    params = {'max_subsamplesize': 100,
+              'align_to_0' : True,
+              'binsize' : 2 * ms,
+              't_start' : 0 * ms,
+              't_stop' : 10000 * ms}
+
+ks_cov_test = cov_test_2msbins_100sample(observation=SPINNAKER_model_data,
+                                         score_type=ks_distance,
+                                         name='KS Covariance Test'
+                                        )
 
 # Visualize the covariances of the two data sets and plot a representation
 # of the score
