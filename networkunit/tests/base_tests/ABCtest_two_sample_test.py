@@ -27,7 +27,8 @@ class two_sample_test(sciunit.Test):
         except:
             raise NotImplementedError("")
 
-    def compute_score(self, observation, prediction):
+    def compute_score(self, observation, prediction, **kwargs):
+        self.params.update(kwargs)
         score = self.score_type.compute(observation, prediction, **self.params)
         return score
 

@@ -3,7 +3,7 @@ sys.path.append('../')
 
 from quantities import ms
 import matplotlib.pyplot as plt
-from networkunit.models import cortical_microcircuit_data, resting_state_data
+from networkunit.models import cortical_microcircuit_data
 from networkunit.scores import ks_distance
 from networkunit.tests import m2m_covariance_test
 
