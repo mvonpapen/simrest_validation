@@ -43,6 +43,20 @@ class cortical_microcircuit_data(data_model, ProducesCovariances):
         self.spiketrains = data.read_block().list_children_by_class(SpikeTrain)
         return self.spiketrains
 
+    def _align_to_zero(self, spiketrains=None):
+        if spiketrains is None:
+            spiketrains = self.spiketrains
+        t_lims = [(st.t_start, st.t_stop) for st in spiketrains]
+        tmin = min(t_lims, key=lambda f: f[0])[0]
+        tmax = max(t_lims, key=lambda f: f[1])[1]
+        unit = spiketrains[0].units
+        for count, spiketrain in enumerate(spiketrains):
+            spiketrains[count] = SpikeTrain(
+                np.array(spiketrain.tolist()) * unit - tmin,
+                t_start=0 * unit,
+                t_stop=tmax - tmin)
+        return spiketrains
+
     def preprocess(self, spiketrain_list, max_subsamplesize=None,
                    align_to_0=True, **kwargs):
         """
@@ -55,14 +69,7 @@ class cortical_microcircuit_data(data_model, ProducesCovariances):
             spiketrains = copy(spiketrain_list)
 
         if align_to_0:
-            t_lims = [(st.t_start, st.t_stop) for st in spiketrains]
-            tmin = min(t_lims, key=lambda f: f[0])[0]
-            tmax = max(t_lims, key=lambda f: f[1])[1]
-            unit = spiketrains[0].units
-            for count, spiketrain in enumerate(spiketrains):
-                spiketrains[count] = SpikeTrain(np.array(spiketrain.tolist())*unit-tmin,
-                                                t_start=0*unit,
-                                                t_stop=tmax-tmin)
+            spiketrains = self._align_to_zero(spiketrains)
         return spiketrains
 
     def produce_covariances(self, spiketrain_list=None, **kwargs):

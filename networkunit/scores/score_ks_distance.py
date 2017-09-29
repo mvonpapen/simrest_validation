@@ -40,7 +40,9 @@ class ks_distance(sciunit.Score):
                   .format(sum(init_length)
                           - sum([len(s) for s in [sample1, sample2]])))
 
-        self.score = ks_distance(ks_2samp(sample1, sample2)) # (DKS, pvalue)
+        DKS, pvalue = ks_2samp(sample1, sample2)
+        self.pvalue = pvalue
+        self.score = ks_distance(DKS)
         return self.score
 
     @classmethod
@@ -60,7 +62,7 @@ class ks_distance(sciunit.Score):
             sorted_sample = np.append(sorted_sample[0], sorted_sample)
             CDF = (np.arange(len(sample)+1)) / float(len(sample))
             ax.step(sorted_sample, CDF, where='post', color=palette[i],
-                    label=sample_names[i])
+                    label=sample_names[i], **kwargs)
             if include_scatterplot:
                 ax.scatter(sorted_sample, [.99-i*.02]*len(sorted_sample),
                            color=palette[i], marker='D', linewidth=1)
@@ -82,10 +84,10 @@ class ks_distance(sciunit.Score):
         distance_minus = [-d if d <= 0 else 0 for d in distance]
 
         # plot distance
-        ax.plot(cdf_array[0], distance_plus, color=palette[0], alpha=.5)
+        ax.plot(cdf_array[0], distance_plus, color=palette[0], lw=.5)
         ax.fill_between(cdf_array[0], distance_plus, 0,
                         color=palette[0], alpha=.5)
-        ax.plot(cdf_array[0], distance_minus, color=palette[0], alpha=.5)
+        ax.plot(cdf_array[0], distance_minus, color=palette[1], lw=.5)
         ax.fill_between(cdf_array[0], distance_minus, 0,
                         color=palette[1], alpha=.5)
 
@@ -111,4 +113,4 @@ class ks_distance(sciunit.Score):
              + "\n\tdatasize: {} \t {}" \
                .format(self.data_size[0], self.data_size[1]) \
              + "\n\tD_KS = {:.3f} \t p value = {:.3f}\n\n" \
-               .format(self.score[0], self.score[1])
+               .format(self.score, self.pvalue)
