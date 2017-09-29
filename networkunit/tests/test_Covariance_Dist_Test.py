@@ -48,7 +48,6 @@ class Covariance_Dist_Test(sciunit.Test):
 
     def __init__(self, 
                  client=None,
-                 observation={},
                  name="Covariance dist. - resting state - motor cortex"):
         description = ("Tests the covariance distribution of motor cortex "
                        +"during resting state")
@@ -57,9 +56,12 @@ class Covariance_Dist_Test(sciunit.Test):
 
         # Load data from collab storage
         COLLAB_PATH = '/2493/'
-        client.download_file(COLLAB_PATH + 'data/i140701-004.ns2', './i140701-004.ns2')
-        client.download_file(COLLAB_PATH + 'data/i140701-004-04.nev', './i140701-004-04.nev')
-        client.download_file(COLLAB_PATH + 'data/i140701-004-04.txt', './i140701-004-04.txt')
+        if not os.path.isfile('i140701-004.ns2'): 
+            client.download_file(COLLAB_PATH + 'data/i140701-004.ns2', './i140701-004.ns2')
+        if not os.path.isfile('i140701-004-04.nev'): 
+            client.download_file(COLLAB_PATH + 'data/i140701-004-04.nev', './i140701-004-04.nev')
+        if not os.path.isfile('i140701-004-04.txt'): 
+            client.download_file(COLLAB_PATH + 'data/i140701-004-04.txt', './i140701-004-04.txt')
         print 'downloaded raw data from collab #2493'
         # set path
         datadir = './'
