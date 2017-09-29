@@ -86,7 +86,7 @@ class microcircuit_data_annotate_sts(cortical_microcircuit_data):
     spiketrains
     '''
     
-    def load(self, client, **kwargs):
+    def load(self, client, file_path, **kwargs):
         fnam = "spikes_L6I_nest.h5"
         client.download_file(file_path + '/' + fnam,
                              './' + fnam)
