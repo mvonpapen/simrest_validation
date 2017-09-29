@@ -126,7 +126,7 @@ class Covariance_Dist_Test(sciunit.Test):
     def generate_prediction(self, model, verbose=False):
         """Implementation of sciunit.Test.generate_prediction."""
         self.model_name = model.name
-        prediction = model.get_sts() ## TODO ##
+        prediction = model.spiketrains
         prediction = self.format_data(prediction)
         prediction = self.covariance_analysis
         return prediction
