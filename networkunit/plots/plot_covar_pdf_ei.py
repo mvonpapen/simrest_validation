@@ -13,6 +13,7 @@ class covar_pdf_ei:
     """
 
     def __init__(self, testObj):
+        print 'test1'
         self.testObj = testObj
         self.filename = "covar_pdf_ei"
 
@@ -22,9 +23,7 @@ class covar_pdf_ei:
         prd = self.testObj.prediction
         pdf_obs, __   = self.get_pdf(obs)
         pdf_prd, bins = self.get_pdf(prd)
-        print 'test 1'
         for i, key in enumerate(prd.keys()):
-            print 'test 2'
             plt.subplot(1,2,i+1)
             plt.plot(bins, pdf_obs[key], '-k', label='obs')
             plt.plot(bins, pdf_prd[key], '-r', label='prd')
