@@ -84,26 +84,32 @@ class cortical_microcircuit_data(data_model, ProducesCovariances):
         return super(cortical_microcircuit_data, self)\
             .produce_covariances(spiketrain_list=processed_spiketrain_list,
                                  **self.params)
-
-
-
-class cortical_microcircuit_data_collab(cortical_microcircuit_data):
+        
+        
+        
+class microcircuit_data_annotate_sts(cortical_microcircuit_data):
     '''
-    overwrites load function to get data from Robins collab storage
+    overwrites load function to get data from Robins collab storage and annotates
+    spiketrains
     '''
     
-    def load(self, file_path, client, **kwargs):
-        path = '/3653'
-        fnam = "spikes_L6I_nest.h5"
-        client.download_file(path + '/' + fnam,
+    def load(self, file_path, client=None, **kwargs):
+        fnam = "spikes_L6I.h5"
+        client.download_file(file_path + '/' + fnam,
                              './' + fnam)
         dataI = NeoHdf5IO('./' + fnam)
-        fnam = "spikes_L6E_nest.h5"
-        client.download_file(path + '/' + fnam,
+        fnam = "spikes_L6E.h5"
+        client.download_file(file_path + '/' + fnam,
                              './' + fnam)
         dataE = NeoHdf5IO('./' + fnam)
-        self.spiketrains = dict()
-        self.spiketrains['inh'] = dataI.read_block().list_children_by_class(SpikeTrain)
-        self.spiketrains['exc'] = dataE.read_block().list_children_by_class(SpikeTrain)
         print file_path + " ... loaded"
-        return self.spiketrains
+        
+        sts_inh = dataI.read_block().list_children_by_class(SpikeTrain)
+        sts_exc = dataE.read_block().list_children_by_class(SpikeTrain)
+        for st in sts_inh:
+            st.annotations['neu_type'] = 'inh'
+        for st in sts_exc:
+            st.annotations['neu_type'] = 'exc'
+        self.spiketrains = sts_inh
+        self.spiketrains.extend(sts_exc)
+        return self.spiketrains          
