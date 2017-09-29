@@ -100,3 +100,33 @@ class cortical_microcircuit_data_collab(cortical_microcircuit_data):
         self.spiketrains['exc'] = dataE.read_block().list_children_by_class(SpikeTrain)
         print file_path + " ... loaded"
         return self.spiketrains
+        
+        
+        
+class microcircuit_data_annotate_sts(cortical_microcircuit_data):
+    '''
+    overwrites load function to get data from Robins collab storage and annotates
+    spiketrains
+    '''
+    
+    def load(self, file_path, client, **kwargs):
+        path = '/3653'
+        fnam = "spikes_L6I_nest.h5"
+        client.download_file(path + '/' + fnam,
+                             './' + fnam)
+        dataI = NeoHdf5IO('./' + fnam)
+        fnam = "spikes_L6E_nest.h5"
+        client.download_file(path + '/' + fnam,
+                             './' + fnam)
+        dataE = NeoHdf5IO('./' + fnam)
+        print file_path + " ... loaded"
+        
+        sts_inh = dataI.read_block().list_children_by_class(SpikeTrain)
+        sts_exc = dataE.read_block().list_children_by_class(SpikeTrain)
+        for st in sts_inh:
+            st.annotations['neu_type'] = 'inh'
+        for st in sts_exc:
+            st.annotations['neu_type'] = 'exc'
+        self.spiketrains = sts_inh
+        self.spiketrains.append(sts_exc)
+        return self.spiketrains          
