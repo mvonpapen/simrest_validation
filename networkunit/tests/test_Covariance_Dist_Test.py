@@ -193,7 +193,7 @@ class Covariance_Dist_Test(sciunit.Test):
             
         
         
-    def cross_covariance(sts, binsize, minNspk=3):
+    def cross_covariance(self, sts, binsize, minNspk=3):
         '''
         Calculates cross-covariances between spike trains. 
         Auto-covariances are set to NaN.
@@ -217,7 +217,7 @@ class Covariance_Dist_Test(sciunit.Test):
     
     
             
-    def get_Cei(covm, ids):
+    def get_Cei(self, covm, ids):
         '''
         Calculates connections within ids of cross-covariances.
         INPUT:
@@ -235,7 +235,7 @@ class Covariance_Dist_Test(sciunit.Test):
     
     
     
-    def get_neuron_types(sts):
+    def get_neuron_types(self, sts):
         '''
         Returns list of neu_type annotations of sts
         '''
