@@ -151,7 +151,6 @@ class Covariance_Dist_Test(sciunit.Test):
         ## TODO ##
         # create relevant output files
         # 1. Plot of pdf's
-        print 'test test'
         pdf_plot = plots.covar_pdf_ei(self)
         file1 = pdf_plot.create()
         self.figures.append(file1)

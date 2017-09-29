@@ -14,17 +14,12 @@ class covar_pdf_ei:
 
     def __init__(self, testObj):
         self.testObj = testObj
-        print 'test1'
         self.filename = "covar_pdf_ei"
 
     def create(self):
         fig = plt.figure()
-        print 'test2'
         obs = self.testObj.observation
-        print 'test3'
         prd = self.testObj.prediction
-        print type(prd)
-        print 'test4'
         pdf_obs, __   = self.get_pdf(obs)
         pdf_prd, bins = self.get_pdf(prd)
         for i, key in enumerate(prd.keys()):
@@ -41,7 +36,7 @@ class covar_pdf_ei:
         return filepath
     
             
-    def get_pdf(C, 
+    def get_pdf(self, C, 
                 binrange=[-0.4, 0.4],
                 nbins=80):
         '''
