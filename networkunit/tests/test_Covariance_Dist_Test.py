@@ -140,8 +140,9 @@ class Covariance_Dist_Test(sciunit.Test):
         # pass non-NaN values to score
         x = observation
         y = prediction        
-        self.score = self.score_type.compute(x[~np.isnan(x)], 
-                                                        y[~np.isnan(y)])
+        print type(x)
+        print type(y)
+        self.score = self.score_type.compute(x[~np.isnan(x)], y[~np.isnan(y)])
         self.score.description = "A Levene Test score"
 
         # create output directory
