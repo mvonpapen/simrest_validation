@@ -66,11 +66,11 @@ class Covariance_Dist_Test(sciunit.Test):
         # set path
         datadir = './'
         class_file = './simrest_validation/nikos2rs_consistency_EIw035complexc04.txt'
-        observation = self.load_nikos2rs(path2file  = datadir, 
-                                         class_file = class_file)
+        sts_exp = self.load_nikos2rs(path2file  = datadir, 
+                                     class_file = class_file)
                             
-        observation = self.format_data(observation)
-        observation = self.covariance_analysis(observation)
+        self.format_data(sts_exp)
+        observation = self.covariance_analysis(sts_exp)
         self.figures = []
         sciunit.Test.__init__(self, observation, name)
 
@@ -109,7 +109,7 @@ class Covariance_Dist_Test(sciunit.Test):
             assert any('inh' == s for s in neu_types)
         except:
             raise sciunit.Error("There are no inh units.")
-        return data
+        pass
 
     #----------------------------------------------------------------------
     ## TODO ##
@@ -128,9 +128,9 @@ class Covariance_Dist_Test(sciunit.Test):
     def generate_prediction(self, model, verbose=False):
         """Implementation of sciunit.Test.generate_prediction."""
         self.model_name = model.name
-        prediction = model.spiketrains
-        prediction = self.format_data(prediction)
-        prediction = self.covariance_analysis
+        sts = model.spiketrains
+        self.format_data(sts)
+        prediction = self.covariance_analysis(sts)
         return prediction
 
     #----------------------------------------------------------------------
@@ -138,11 +138,7 @@ class Covariance_Dist_Test(sciunit.Test):
     def compute_score(self, observation, prediction, verbose=False):
         """Implementation of sciunit.Test.score_prediction."""
         # pass non-NaN values to score
-        x = observation
-        y = prediction        
-        print type(x)
-        print type(y)
-        self.score = self.score_type.compute(x[~np.isnan(x)], y[~np.isnan(y)])
+        self.score = self.score_type.compute(observation, prediction)
         self.score.description = "A Levene Test score"
 
         # create output directory
