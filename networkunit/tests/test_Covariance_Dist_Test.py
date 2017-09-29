@@ -60,6 +60,7 @@ class Covariance_Dist_Test(sciunit.Test):
         client.download_file(COLLAB_PATH + 'data/i140701-004.ns2', './i140701-004.ns2')
         client.download_file(COLLAB_PATH + 'data/i140701-004-04.nev', './i140701-004-04.nev')
         client.download_file(COLLAB_PATH + 'data/i140701-004-04.txt', './i140701-004-04.txt')
+        print 'downloaded raw data from collab #2493'
         # set path
         datadir = './'
         class_file = './simrest_validation/nikos2rs_consistency_EIw035complexc04.txt'
@@ -276,9 +277,7 @@ class Covariance_Dist_Test(sciunit.Test):
 
 
 
-    def neuron_type_separation(sts,
-                               class_file='./nikos2rs_consistency_EIw035complexc04.txt', 
-                               eiThres=0.4):
+    def neuron_type_separation(sts, **kwargs):
         '''
         This function loads the consistencies for each unit.
         The consistencies are the percentages of single waveforms with 
