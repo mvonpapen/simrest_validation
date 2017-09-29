@@ -268,7 +268,7 @@ class Covariance_Dist_Test(sciunit.Test):
         # load only those spike trains with annotation 'sua' = True
         sts = np.asarray([ st for st in block.segments[0].spiketrains
                            if st.annotations['sua'] ])
-        if class_file:         
+        if class_file is not None:         
             self.neuron_type_separation(sts, 
                                         eiThres=eiThres,
                                         class_file=class_file)                       
@@ -277,7 +277,10 @@ class Covariance_Dist_Test(sciunit.Test):
 
 
 
-    def neuron_type_separation(sts, **kwargs):
+    def neuron_type_separation(self, sts, 
+                                     eiThres = 0.4,
+                                     class_file = None,
+                                     **kwargs):
         '''
         This function loads the consistencies for each unit.
         The consistencies are the percentages of single waveforms with 
