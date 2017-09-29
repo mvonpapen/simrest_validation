@@ -37,7 +37,7 @@ import re
 
 #%% ==============================================================================
 
-class Covariance_Dist_Test(sciunit.Test):
+class Covariance_Dist_Test(sciunit.Test, client=None):
     """
     Tests for equal variances of cross-covariances of neural network simulation
     against experimental data obtained from Utah array in (pre)motor cortex of 
@@ -55,7 +55,6 @@ class Covariance_Dist_Test(sciunit.Test):
         required_capabilities = (cap.ProducesCovariances,)
 
         # Load data from collab storage
-        client = get_bbp_client().document
         COLLAB_PATH = '/2493/'
         client.download_file(COLLAB_PATH + 'data/i140701-004.ns2', './i140701-004.ns2')
         client.download_file(COLLAB_PATH + 'data/i140701-004-04.nev', './i140701-004-04.nev')
