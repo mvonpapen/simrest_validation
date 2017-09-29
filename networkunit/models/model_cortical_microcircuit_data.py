@@ -77,29 +77,6 @@ class cortical_microcircuit_data(data_model, ProducesCovariances):
         return super(cortical_microcircuit_data, self)\
             .produce_covariances(spiketrain_list=processed_spiketrain_list,
                                  **self.params)
-
-
-
-class cortical_microcircuit_data_collab(cortical_microcircuit_data):
-    '''
-    overwrites load function to get data from Robins collab storage
-    '''
-    
-    def load(self, file_path, client, **kwargs):
-        path = '/3653'
-        fnam = "spikes_L6I_nest.h5"
-        client.download_file(path + '/' + fnam,
-                             './' + fnam)
-        dataI = NeoHdf5IO('./' + fnam)
-        fnam = "spikes_L6E_nest.h5"
-        client.download_file(path + '/' + fnam,
-                             './' + fnam)
-        dataE = NeoHdf5IO('./' + fnam)
-        self.spiketrains = dict()
-        self.spiketrains['inh'] = dataI.read_block().list_children_by_class(SpikeTrain)
-        self.spiketrains['exc'] = dataE.read_block().list_children_by_class(SpikeTrain)
-        print file_path + " ... loaded"
-        return self.spiketrains
         
         
         
@@ -109,14 +86,13 @@ class microcircuit_data_annotate_sts(cortical_microcircuit_data):
     spiketrains
     '''
     
-    def load(self, file_path, client, **kwargs):
-        path = '/3653'
+    def load(self, client, **kwargs):
         fnam = "spikes_L6I_nest.h5"
-        client.download_file(path + '/' + fnam,
+        client.download_file(file_path + '/' + fnam,
                              './' + fnam)
         dataI = NeoHdf5IO('./' + fnam)
         fnam = "spikes_L6E_nest.h5"
-        client.download_file(path + '/' + fnam,
+        client.download_file(file_path + '/' + fnam,
                              './' + fnam)
         dataE = NeoHdf5IO('./' + fnam)
         print file_path + " ... loaded"
