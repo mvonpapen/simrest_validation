@@ -38,7 +38,15 @@ class two_sample_test(sciunit.Test):
         if ax is None:
             fig, ax = plt.subplots()
         if palette is None:
-            palette = [sns.color_palette()[0], sns.color_palette()[1]]
+            try:
+                color_0 = self.color
+            except:
+                color_0 = sns.color_palette()[0]
+            try:
+                color_1 = model.color
+            except:
+                color_1 = sns.color_palette()[1]
+            palette = [color_0, color_1]
         if model is None:
             sample2 = None
         else:
@@ -91,6 +99,16 @@ class two_sample_test(sciunit.Test):
         -------
         """
         try:
+            if palette is None:
+                try:
+                    color_0 = self.color
+                except:
+                    color_0 = sns.color_palette()[0]
+                try:
+                    color_1 = model.color
+                except:
+                    color_1 = sns.color_palette()[1]
+                palette = [color_0, color_1]
             self.score_type.plot(self.observation,
                                  self.generate_prediction(model),
                                  ax=ax, palette=palette, **kwargs)
