@@ -37,7 +37,7 @@ import re
 
 #%% ==============================================================================
 
-class Covariance_Dist_Test(sciunit.Test, client=None):
+class Covariance_Dist_Test(sciunit.Test):
     """
     Tests for equal variances of cross-covariances of neural network simulation
     against experimental data obtained from Utah array in (pre)motor cortex of 
@@ -46,7 +46,8 @@ class Covariance_Dist_Test(sciunit.Test, client=None):
     score_type = netsco.LeveneScore
     id = -1## TODO ##
 
-    def __init__(self,
+    def __init__(self, 
+                 client=None,
                  observation={},
                  name="Covariance dist. - resting state - motor cortex"):
         description = ("Tests the covariance distribution of motor cortex "
