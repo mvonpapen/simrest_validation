@@ -87,11 +87,11 @@ class microcircuit_data_annotate_sts(cortical_microcircuit_data):
     '''
     
     def load(self, file_path, client=None, **kwargs):
-        fnam = "spikes_L6I_nest.h5"
+        fnam = "spikes_L6I.h5"
         client.download_file(file_path + '/' + fnam,
                              './' + fnam)
         dataI = NeoHdf5IO('./' + fnam)
-        fnam = "spikes_L6E_nest.h5"
+        fnam = "spikes_L6E.h5"
         client.download_file(file_path + '/' + fnam,
                              './' + fnam)
         dataE = NeoHdf5IO('./' + fnam)
