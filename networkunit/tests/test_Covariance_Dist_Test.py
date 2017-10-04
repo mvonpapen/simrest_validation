@@ -342,18 +342,13 @@ class RestingStateIO(BlackrockIO):
         """
         Constructor
         """
-
         # Remember choice whether to print diagnostic messages or not
         self._verbose = verbose
         self.__verbose_messages = []
-
         if odmldir is None:
             odmldir = ''
-
         for ext in self.extensions:
             filename = re.sub(os.path.extsep + ext + '$', '', filename)
-
-
         sorting_version = None
         txtpostfix = None
         if nev_override:
@@ -365,30 +360,25 @@ class RestingStateIO(BlackrockIO):
             nev_versions = [p.replace(filename, '') for p in nev_versions]
             if nev_versions:
                 sorting_version = sorted(nev_versions)[-1]
-
         if sorting_version:
             if os.path.isfile(r'' + filename + sorting_version + "-test.txt"):
                 txtpostfix = sorting_version + '-test'
             elif os.path.isfile(r'' + filename + sorting_version + ".txt"):
                 txtpostfix = sorting_version
-
         # Initialize file
         BlackrockIO.__init__(
             self, filename, nsx_override=nsx_override,
             nev_override=filename + sorting_version, sif_override=sif_override,
             ccf_override=ccf_override, verbose=verbose)
-
         # printing can be only done after initialization of BlackrockIO
         if sorting_version:
             # Output which file is used in the end
             self._print_verbose("Using nev file: " + filename + sorting_version
                                 + ".nev")
-
         if txtpostfix:
             # Output which file is used in the end
             self._print_verbose("Using txt sorting file: " + filename +
                                    txtpostfix + ".txt")
-
         # remove extensions from overrides
         filen = os.path.split(self.filename)[-1]
         if odml_filename:
@@ -404,19 +394,12 @@ class RestingStateIO(BlackrockIO):
         else:
             self._avail_files['odml'] = False
             self.odmldoc = None
-
-
-
-
         # Determine path to sorting file (txt) if it exists
         if txtpostfix == None:
             self.txt_fileprefix = None
 
         else:
             self.txt_fileprefix = filename + txtpostfix
-
-
-        # TODO: Put this in again!
         # Interpret file
         self.__load_suamua()
 
@@ -604,7 +587,6 @@ class RestingStateIO(BlackrockIO):
             ### next 35 are copied from rgio.py
             #reading correction parameters from 'corrections.txt' file and saving them
             #gap_corrections = [gap_start_bin,gap_size_bins]
-            #TODO: Make this more general, use time resolution from BRIO
             timestamp_res = 30000
             gap_corrections = [None,None]
             if corrections:
