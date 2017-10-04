@@ -58,6 +58,8 @@ class Covariance_Dist_Test(sciunit.Test):
         COLLAB_PATH = '/2493/'
         if not os.path.isfile('i140701-004.ns2'): 
             client.download_file(COLLAB_PATH + 'data/i140701-004.ns2', './i140701-004.ns2')
+        if not os.path.isfile('i140701-004.nev'): 
+            client.download_file(COLLAB_PATH + 'data/i140701-004.nev', './i140701-004.nev')
         if not os.path.isfile('i140701-004-04.nev'): 
             client.download_file(COLLAB_PATH + 'data/i140701-004-04.nev', './i140701-004-04.nev')
         if not os.path.isfile('i140701-004-04.txt'): 
