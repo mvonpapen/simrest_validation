@@ -44,7 +44,7 @@ class Covariance_Dist_Test(sciunit.Test):
     macaque monkey during resting state
     """
     score_type = netsco.LeveneScore
-    id = -1## TODO ##
+    id = -1## TODO ## dont know what to set here
 
     def __init__(self, 
                  client=None,
@@ -114,7 +114,7 @@ class Covariance_Dist_Test(sciunit.Test):
         pass
 
     #----------------------------------------------------------------------
-    ## TODO ##
+    ## TODO ## is validate observation needed at all?
 #    def validate_observation(self, observation):
 #        try:
 #            for key0 in observation.keys():
@@ -150,7 +150,6 @@ class Covariance_Dist_Test(sciunit.Test):
 
         self.observation = observation
         self.prediction  = prediction
-        ## TODO ##
         # create relevant output files
         # 1. Plot of pdf's
         pdf_plot = plots.covar_pdf_ei(self)
@@ -166,7 +165,6 @@ class Covariance_Dist_Test(sciunit.Test):
 
     def bind_score(self, score, model, observation, prediction):
         score.related_data["figures"] = self.figures
-        ## TODO ## call also inherited bind_score function here?
         return score
 
 

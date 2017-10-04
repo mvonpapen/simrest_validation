@@ -16,7 +16,7 @@ class mu_std_table:
         self.filename = "score_summary"
 
     def create(self, mid_keys = []):
-        # could add separates scores to table
+        ## TODO ## add separate p-values (scores) to table
         # check how to make LevenScore pass dict of pvalues instead of max_pval
         filepath = self.testObj.path_test_output + self.filename + '.txt'
         dataFile = open(filepath, 'w')
