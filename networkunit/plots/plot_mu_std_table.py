@@ -32,10 +32,10 @@ class mu_std_table:
         C_mu_std = self.get_mu_std(obs, prd)
         for key in self.testObj.prediction.keys():
             row_list.append([key, 
-                             C_mu_std['obs']['mu'], 
-                             C_mu_std['obs']['std'], 
-                             C_mu_std['prd']['mu'],
-                             C_mu_std['prd']['std'],
+                             C_mu_std[key]['obs']['mu'], 
+                             C_mu_std[key]['obs']['std'], 
+                             C_mu_std[key]['prd']['mu'],
+                             C_mu_std[key]['prd']['std'],
                              ])
         dataFile.write(tabulate(row_list, headers=header_list, tablefmt='orgtbl'))
         dataFile.write("\n------------------------------------------------------------------------------\n")
