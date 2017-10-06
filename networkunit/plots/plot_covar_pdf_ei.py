@@ -30,13 +30,13 @@ class covar_pdf_ei:
         plt.legend()
         plt.show()
         fig = plt.gcf()
-        fig.set_size_inches(12, 6)
+        fig.set_size_inches(12, 5)
         filepath = self.testObj.path_test_output + self.filename + '.pdf'
         plt.savefig(filepath, dpi=600,)
         return filepath
     
             
-    def get_pdf(C, 
+    def get_pdf(self, C, 
                 binrange=[-0.4, 0.4],
                 nbins=80):
         '''

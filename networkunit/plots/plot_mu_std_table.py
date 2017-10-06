@@ -16,7 +16,7 @@ class mu_std_table:
         self.filename = "score_summary"
 
     def create(self, mid_keys = []):
-        # could add separates scores to table
+        ## TODO ## add separate p-values (scores) to table
         # check how to make LevenScore pass dict of pvalues instead of max_pval
         filepath = self.testObj.path_test_output + self.filename + '.txt'
         dataFile = open(filepath, 'w')
@@ -32,10 +32,10 @@ class mu_std_table:
         C_mu_std = self.get_mu_std(obs, prd)
         for key in self.testObj.prediction.keys():
             row_list.append([key, 
-                             C_mu_std['obs']['mu'], 
-                             C_mu_std['obs']['std'], 
-                             C_mu_std['prd']['mu'],
-                             C_mu_std['prd']['std'],
+                             C_mu_std[key]['obs']['mu'], 
+                             C_mu_std[key]['obs']['std'], 
+                             C_mu_std[key]['prd']['mu'],
+                             C_mu_std[key]['prd']['std'],
                              ])
         dataFile.write(tabulate(row_list, headers=header_list, tablefmt='orgtbl'))
         dataFile.write("\n------------------------------------------------------------------------------\n")

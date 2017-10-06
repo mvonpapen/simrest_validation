@@ -8,6 +8,7 @@ from neo.core import SpikeTrain
 from neo.io import NeoHdf5IO
 from copy import copy
 import numpy as np
+import os
 
 class cortical_microcircuit_data(data_model, ProducesCovariances):
     """
@@ -95,12 +96,12 @@ class microcircuit_data_annotate_sts(cortical_microcircuit_data):
     
     def load(self, file_path, client=None, **kwargs):
         fnam = "spikes_L6I.h5"
-        client.download_file(file_path + '/' + fnam,
-                             './' + fnam)
+        if not os.path.isfile(fnam):
+            client.download_file(file_path + '/' + fnam, './' + fnam)
         dataI = NeoHdf5IO('./' + fnam)
-        fnam = "spikes_L6E.h5"
-        client.download_file(file_path + '/' + fnam,
-                             './' + fnam)
+        fnam = "spikes_L6E.h5"        
+        if not os.path.isfile(fnam):
+            client.download_file(file_path + '/' + fnam, './' + fnam)
         dataE = NeoHdf5IO('./' + fnam)
         print file_path + " ... loaded"
         

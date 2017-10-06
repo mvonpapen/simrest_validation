@@ -44,11 +44,10 @@ class Covariance_Dist_Test(sciunit.Test):
     macaque monkey during resting state
     """
     score_type = netsco.LeveneScore
-    id = -1## TODO ##
+    id = -1## TODO ## dont know what to set here
 
     def __init__(self, 
                  client=None,
-                 observation={},
                  name="Covariance dist. - resting state - motor cortex"):
         description = ("Tests the covariance distribution of motor cortex "
                        +"during resting state")
@@ -57,17 +56,23 @@ class Covariance_Dist_Test(sciunit.Test):
 
         # Load data from collab storage
         COLLAB_PATH = '/2493/'
-        client.download_file(COLLAB_PATH + 'data/i140701-004.ns2', './i140701-004.ns2')
-        client.download_file(COLLAB_PATH + 'data/i140701-004-04.nev', './i140701-004-04.nev')
-        client.download_file(COLLAB_PATH + 'data/i140701-004-04.txt', './i140701-004-04.txt')
+        if not os.path.isfile('i140701-004.ns2'): 
+            client.download_file(COLLAB_PATH + 'data/i140701-004.ns2', './i140701-004.ns2')
+        if not os.path.isfile('i140701-004.nev'): 
+            client.download_file(COLLAB_PATH + 'data/i140701-004.nev', './i140701-004.nev')
+        if not os.path.isfile('i140701-004-04.nev'): 
+            client.download_file(COLLAB_PATH + 'data/i140701-004-04.nev', './i140701-004-04.nev')
+        if not os.path.isfile('i140701-004-04.txt'): 
+            client.download_file(COLLAB_PATH + 'data/i140701-004-04.txt', './i140701-004-04.txt')
+        print 'downloaded raw data from collab #2493'
         # set path
         datadir = './'
         class_file = './simrest_validation/nikos2rs_consistency_EIw035complexc04.txt'
-        observation = self.load_nikos2rs(path2file  = datadir, 
-                                         class_file = class_file)
+        sts_exp = self.load_nikos2rs(path2file  = datadir, 
+                                     class_file = class_file)
                             
-        observation = self.format_data(observation)
-        observation = self.covariance_analysis(observation)
+        self.format_data(sts_exp)
+        observation = self.covariance_analysis(sts_exp)
         self.figures = []
         sciunit.Test.__init__(self, observation, name)
 
@@ -106,10 +111,10 @@ class Covariance_Dist_Test(sciunit.Test):
             assert any('inh' == s for s in neu_types)
         except:
             raise sciunit.Error("There are no inh units.")
-        return data
+        pass
 
     #----------------------------------------------------------------------
-    ## TODO ##
+    ## TODO ## is validate observation needed at all?
 #    def validate_observation(self, observation):
 #        try:
 #            for key0 in observation.keys():
@@ -125,9 +130,9 @@ class Covariance_Dist_Test(sciunit.Test):
     def generate_prediction(self, model, verbose=False):
         """Implementation of sciunit.Test.generate_prediction."""
         self.model_name = model.name
-        prediction = model.get_sts() ## TODO ##
-        prediction = self.format_data(prediction)
-        prediction = self.covariance_analysis
+        sts = model.spiketrains
+        self.format_data(sts)
+        prediction = self.covariance_analysis(sts)
         return prediction
 
     #----------------------------------------------------------------------
@@ -135,10 +140,7 @@ class Covariance_Dist_Test(sciunit.Test):
     def compute_score(self, observation, prediction, verbose=False):
         """Implementation of sciunit.Test.score_prediction."""
         # pass non-NaN values to score
-        x = observation
-        y = prediction        
-        self.score = sciunit.scores.LeveneScore.compute(x[~np.isnan(x)], 
-                                                        y[~np.isnan(y)])
+        self.score = self.score_type.compute(observation, prediction)
         self.score.description = "A Levene Test score"
 
         # create output directory
@@ -148,9 +150,8 @@ class Covariance_Dist_Test(sciunit.Test):
 
         self.observation = observation
         self.prediction  = prediction
-        ## TODO ##
         # create relevant output files
-        # 1. Plot od pdf's
+        # 1. Plot of pdf's
         pdf_plot = plots.covar_pdf_ei(self)
         file1 = pdf_plot.create()
         self.figures.append(file1)
@@ -164,7 +165,6 @@ class Covariance_Dist_Test(sciunit.Test):
 
     def bind_score(self, score, model, observation, prediction):
         score.related_data["figures"] = self.figures
-        ## TODO ## call also inherited bind_score function here?
         return score
 
 
@@ -192,7 +192,7 @@ class Covariance_Dist_Test(sciunit.Test):
             
         
         
-    def cross_covariance(sts, binsize, minNspk=3):
+    def cross_covariance(self, sts, binsize, minNspk=3):
         '''
         Calculates cross-covariances between spike trains. 
         Auto-covariances are set to NaN.
@@ -216,7 +216,7 @@ class Covariance_Dist_Test(sciunit.Test):
     
     
             
-    def get_Cei(covm, ids):
+    def get_Cei(self, covm, ids):
         '''
         Calculates connections within ids of cross-covariances.
         INPUT:
@@ -234,7 +234,7 @@ class Covariance_Dist_Test(sciunit.Test):
     
     
     
-    def get_neuron_types(sts):
+    def get_neuron_types(self, sts):
         '''
         Returns list of neu_type annotations of sts
         '''
@@ -267,7 +267,7 @@ class Covariance_Dist_Test(sciunit.Test):
         # load only those spike trains with annotation 'sua' = True
         sts = np.asarray([ st for st in block.segments[0].spiketrains
                            if st.annotations['sua'] ])
-        if class_file:         
+        if class_file is not None:         
             self.neuron_type_separation(sts, 
                                         eiThres=eiThres,
                                         class_file=class_file)                       
@@ -276,9 +276,10 @@ class Covariance_Dist_Test(sciunit.Test):
 
 
 
-    def neuron_type_separation(sts,
-                               class_file='./nikos2rs_consistency_EIw035complexc04.txt', 
-                               eiThres=0.4):
+    def neuron_type_separation(self, sts, 
+                                     eiThres = 0.4,
+                                     class_file = None,
+                                     **kwargs):
         '''
         This function loads the consistencies for each unit.
         The consistencies are the percentages of single waveforms with 
@@ -341,18 +342,13 @@ class RestingStateIO(BlackrockIO):
         """
         Constructor
         """
-
         # Remember choice whether to print diagnostic messages or not
         self._verbose = verbose
         self.__verbose_messages = []
-
         if odmldir is None:
             odmldir = ''
-
         for ext in self.extensions:
             filename = re.sub(os.path.extsep + ext + '$', '', filename)
-
-
         sorting_version = None
         txtpostfix = None
         if nev_override:
@@ -364,30 +360,25 @@ class RestingStateIO(BlackrockIO):
             nev_versions = [p.replace(filename, '') for p in nev_versions]
             if nev_versions:
                 sorting_version = sorted(nev_versions)[-1]
-
         if sorting_version:
             if os.path.isfile(r'' + filename + sorting_version + "-test.txt"):
                 txtpostfix = sorting_version + '-test'
             elif os.path.isfile(r'' + filename + sorting_version + ".txt"):
                 txtpostfix = sorting_version
-
         # Initialize file
         BlackrockIO.__init__(
             self, filename, nsx_override=nsx_override,
             nev_override=filename + sorting_version, sif_override=sif_override,
             ccf_override=ccf_override, verbose=verbose)
-
         # printing can be only done after initialization of BlackrockIO
         if sorting_version:
             # Output which file is used in the end
             self._print_verbose("Using nev file: " + filename + sorting_version
                                 + ".nev")
-
         if txtpostfix:
             # Output which file is used in the end
             self._print_verbose("Using txt sorting file: " + filename +
                                    txtpostfix + ".txt")
-
         # remove extensions from overrides
         filen = os.path.split(self.filename)[-1]
         if odml_filename:
@@ -403,19 +394,12 @@ class RestingStateIO(BlackrockIO):
         else:
             self._avail_files['odml'] = False
             self.odmldoc = None
-
-
-
-
         # Determine path to sorting file (txt) if it exists
         if txtpostfix == None:
             self.txt_fileprefix = None
 
         else:
             self.txt_fileprefix = filename + txtpostfix
-
-
-        # TODO: Put this in again!
         # Interpret file
         self.__load_suamua()
 
@@ -603,7 +587,6 @@ class RestingStateIO(BlackrockIO):
             ### next 35 are copied from rgio.py
             #reading correction parameters from 'corrections.txt' file and saving them
             #gap_corrections = [gap_start_bin,gap_size_bins]
-            #TODO: Make this more general, use time resolution from BRIO
             timestamp_res = 30000
             gap_corrections = [None,None]
             if corrections:

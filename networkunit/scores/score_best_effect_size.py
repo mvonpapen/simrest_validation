@@ -1,6 +1,7 @@
 from __future__ import division
-import best
-from pymc import Uniform, Normal, Exponential, NoncentralT, deterministic, Model, MCMC
+## Cant get pymc to work in collab, pip install pymc fails
+#import best
+#from pymc import Uniform, Normal, Exponential, NoncentralT, deterministic, Model, MCMC
 import numpy as np
 import sciunit
 import matplotlib.pyplot as plt
