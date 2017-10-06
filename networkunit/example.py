@@ -4,8 +4,8 @@ sys.path.append('../')
 from quantities import ms
 import matplotlib.pyplot as plt
 from networkunit.models import cortical_microcircuit_data
-from networkunit.scores import ks_distance, best_effect_size
-from networkunit.tests import covariance_test, model2model_test
+from networkunit.scores import ks_distance #, best_effect_size
+from networkunit.tests.base_tests import covariance_test, model2model_test
 
 """
 Validation of the microcircuit model by using data of a previously

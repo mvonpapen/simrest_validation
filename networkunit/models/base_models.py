@@ -17,6 +17,7 @@ class data_model(sciunit.Model):
     The use of a data_model enables to perfom the data analysis step more
     equivalently on both the experimental data and the simulation data.
     """
+
     def __init__(self, file_path, name=None, **params):
         self.data = self.load(file_path, **params)
         super(data_model, self).__init__(name=name, **params)

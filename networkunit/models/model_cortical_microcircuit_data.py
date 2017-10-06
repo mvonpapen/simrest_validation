@@ -2,15 +2,16 @@ import sciunit
 #from networkunit import capabilities as cap
 #from networkunit import models
 
-from networkunit.capabilities import ProducesCovariances
+from networkunit.capabilities import ProducesSpikeTrains
 from networkunit.models import data_model
 from neo.core import SpikeTrain
 from neo.io import NeoHdf5IO
 from copy import copy
 import numpy as np
 import os
+import neo
 
-class cortical_microcircuit_data(data_model, ProducesCovariances):
+class cortical_microcircuit_data(data_model, ProducesSpikeTrains):
     """
     A model class to wrap network activity data (in form of spike trains) from
     an already performed simulation of the Potjans-Diesman cortical
@@ -41,8 +42,8 @@ class cortical_microcircuit_data(data_model, ProducesCovariances):
             client.download_file(file_path, store_path)
             data = NeoHdf5IO(store_path)
 
-        self.spiketrains = data.read_block().list_children_by_class(SpikeTrain)
-        return self.spiketrains
+        spiketrains = data.read_block().list_children_by_class(SpikeTrain)
+        return spiketrains
 
     def _align_to_zero(self, spiketrains=None):
         if spiketrains is None:
@@ -73,19 +74,21 @@ class cortical_microcircuit_data(data_model, ProducesCovariances):
             spiketrains = self._align_to_zero(spiketrains)
         return spiketrains
 
-    def produce_covariances(self, spiketrain_list=None, **kwargs):
+    def produce_spiketrains(self, **kwargs):
         """
         overwrites function in class ProduceCovariances
         """
         self.params.update(kwargs)
-        if spiketrain_list is None:
-            spiketrain_list = self.spiketrains
-        processed_spiketrain_list = self.preprocess(spiketrain_list, **self.params)
-        # call generic function to calculate covariances from capability
-        return super(cortical_microcircuit_data, self)\
-            .produce_covariances(spiketrain_list=processed_spiketrain_list,
-                                 **self.params)
-        
+        self.spiketrains = self.data
+        if type(self.spiketrains) == list:
+            for st in self.spiketrains:
+                if type(st) == neo.core.spiketrain.SpikeTrain:
+                    pass
+        else:
+            raise TypeError, 'loaded data is not a list of neo.SpikeTrain'
+
+        self.spiketrains = self.preprocess(self.spiketrains, **self.params)
+        return self.spiketrains
         
         
 class microcircuit_data_annotate_sts(cortical_microcircuit_data):
@@ -111,6 +114,6 @@ class microcircuit_data_annotate_sts(cortical_microcircuit_data):
             st.annotations['neu_type'] = 'inh'
         for st in sts_exc:
             st.annotations['neu_type'] = 'exc'
-        self.spiketrains = sts_inh
-        self.spiketrains.extend(sts_exc)
-        return self.spiketrains          
+        spiketrains = sts_inh
+        spiketrains.extend(sts_exc)
+        return spiketrains

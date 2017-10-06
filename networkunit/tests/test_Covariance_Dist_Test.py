@@ -52,7 +52,7 @@ class Covariance_Dist_Test(sciunit.Test):
         description = ("Tests the covariance distribution of motor cortex "
                        +"during resting state")
         self.units = quantities.um
-        required_capabilities = (cap.ProducesCovariances,)
+        required_capabilities = (cap.ProducesSpikeTrains,)
 
         # Load data from collab storage
         COLLAB_PATH = '/2493/'

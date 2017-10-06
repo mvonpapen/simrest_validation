@@ -78,7 +78,7 @@ class two_sample_test(sciunit.Test):
         ax.set_xlim(xvalues[0], xvalues[-1])
         ax.set_ylim(0, ymax)
         ax.set_ylabel('Density')
-        ax.set_xlabel('Measured Parameter')
+        ax.set_xlabel(var_name)
         plt.legend()
         # plt.show()
         return ax

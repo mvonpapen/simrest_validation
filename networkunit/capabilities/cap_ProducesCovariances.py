@@ -4,6 +4,7 @@ from numpy import triu_indices
 from quantities import ms
 from networkunit.capabilities import ProducesSample
 
+########## Deprecated! ##########
 
 class ProducesCovariances(ProducesSample):
     """
