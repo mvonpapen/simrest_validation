@@ -39,11 +39,11 @@ class two_sample_test(sciunit.Test):
             fig, ax = plt.subplots()
         if palette is None:
             try:
-                color_0 = self.color
+                color_0 = self.observation_params['color']
             except:
                 color_0 = sns.color_palette()[0]
             try:
-                color_1 = model.color
+                color_1 = model.params['color']
             except:
                 color_1 = sns.color_palette()[1]
             palette = [color_0, color_1]
@@ -101,11 +101,11 @@ class two_sample_test(sciunit.Test):
         try:
             if palette is None:
                 try:
-                    color_0 = self.color
+                    color_0 = self.observation_params['color']
                 except:
                     color_0 = sns.color_palette()[0]
                 try:
-                    color_1 = model.color
+                    color_1 = model.params['color']
                 except:
                     color_1 = sns.color_palette()[1]
                 palette = [color_0, color_1]

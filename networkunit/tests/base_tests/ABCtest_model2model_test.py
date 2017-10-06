@@ -14,6 +14,10 @@ class model2model_test(sciunit.Test):
         ----------
         observation : sciUnit.Model instance
         """
+        if params is None:
+            params = {}
+        self.params.update(params)
+        self.observation_params = observation.params
         observation = self.generate_prediction(observation, **params)
         super(model2model_test, self).__init__(observation, name=name, **params)
 

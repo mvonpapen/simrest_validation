@@ -15,9 +15,11 @@ run NEST simulation and comparing it to experimental resting state data
 # Loading simulation data and experimental data into data models
 
 NEST_model_data = cortical_microcircuit_data(file_path='models/data/NEST_cort_microcircuit_model_spikes_L4I.h5',
+                                             color='#FF6634',
                                              name='NEST Data Layer 4 inh')
 
 SPINNAKER_model_data = cortical_microcircuit_data(file_path='models/data/SPINNAKER_cort_microcircuit_model_spikes_L4I.h5',
+                                                  color='#1B6145',
                                                   name='SpiNNaker Data Layer 4 inh')
 
 # Initializing the test with the resting state data and setting the score type
@@ -38,9 +40,7 @@ ks_cov_test = m2m_cov_ks_test_2msbins_100sample(observation=SPINNAKER_model_data
 # Visualize the covariances of the two data sets and plot a representation
 # of the score
 
-# ks_cov_test.visualize_sample(model=NEST_model_data)
-
-
+ks_cov_test.visualize_sample(model=NEST_model_data)
 
 # Perfroming the validation test against the microcircuit model
 
