@@ -98,20 +98,21 @@ class two_sample_test(sciunit.Test):
         Returns : matplotlib axis
         -------
         """
-        try:
-            if palette is None:
-                try:
-                    color_0 = self.observation_params['color']
-                except:
-                    color_0 = sns.color_palette()[0]
-                try:
-                    color_1 = model.params['color']
-                except:
-                    color_1 = sns.color_palette()[1]
-                palette = [color_0, color_1]
-            self.score_type.plot(self.observation,
-                                 self.generate_prediction(model),
-                                 ax=ax, palette=palette, **kwargs)
-        except:
-            self.visualize_sample(model=model, ax=ax, palette=palette)
+        # try:
+        if palette is None:
+            try:
+                color_0 = self.observation_params['color']
+            except:
+                color_0 = sns.color_palette()[0]
+            try:
+                color_1 = model.params['color']
+            except:
+                color_1 = sns.color_palette()[1]
+            palette = [color_0, color_1]
+        ax = self.score_type.plot(self.observation,
+                                  self.generate_prediction(model),
+                                  ax=ax, palette=palette, **kwargs)
+        return ax
+        # except:
+        #     self.visualize_sample(model=model, ax=ax, palette=palette)
         return ax

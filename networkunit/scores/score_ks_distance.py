@@ -1,8 +1,10 @@
 import numpy as np
 from scipy.stats import ks_2samp
 import matplotlib.pyplot as plt
+import matplotlib.colors as colors
 import seaborn as sns
 import sciunit
+from networkunit.scores import to_precision
 
 
 class ks_distance(sciunit.Score):
@@ -56,6 +58,12 @@ class ks_distance(sciunit.Score):
         if palette is None:
             palette = [sns.color_palette()[0], sns.color_palette()[1]]
 
+        def alpha(color_inst, a):
+            if type(color_inst) == str:
+                if color_inst[0] == '#':
+                    color_inst = colors.hex2color(color_inst)
+            return [el + (1. - el) * (1-a) for el in color_inst]
+
         # plot cumulative distributions and scatterplot
         for i, sample in enumerate([sample1, sample2]):
             sorted_sample = np.sort(sample)
@@ -84,12 +92,12 @@ class ks_distance(sciunit.Score):
         distance_minus = [-d if d <= 0 else 0 for d in distance]
 
         # plot distance
-        ax.plot(cdf_array[0], distance_plus, color=palette[0], lw=.5)
+        ax.plot(cdf_array[0], distance_plus, color=alpha(palette[0],.7), lw=.5)
         ax.fill_between(cdf_array[0], distance_plus, 0,
-                        color=palette[0], alpha=.5)
-        ax.plot(cdf_array[0], distance_minus, color=palette[1], lw=.5)
+                        color=alpha(palette[0],.3))
+        ax.plot(cdf_array[0], distance_minus, color=alpha(palette[1],.7), lw=.5)
         ax.fill_between(cdf_array[0], distance_minus, 0,
-                        color=palette[1], alpha=.5)
+                        color=alpha(palette[1],.3))
 
         # plot max distance marker
         ax.axvline(cdf_array[0][np.argmax(abs(distance))],
@@ -112,5 +120,5 @@ class ks_distance(sciunit.Score):
         return "\n\n\033[4mKolmogorov-Smirnov-Distance\033[0m" \
              + "\n\tdatasize: {} \t {}" \
                .format(self.data_size[0], self.data_size[1]) \
-             + "\n\tD_KS = {:.3f} \t p value = {:.3f}\n\n" \
-               .format(self.score, self.pvalue)
+             + "\n\tD_KS = {:.3f} \t p value = {}\n\n" \
+               .format(self.score, to_precision(self.pvalue,3))
