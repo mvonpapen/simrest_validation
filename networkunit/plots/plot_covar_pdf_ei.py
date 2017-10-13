@@ -21,16 +21,15 @@ class covar_pdf_ei:
         obs = self.testObj.observation
         prd = self.testObj.prediction
         pdf_obs, __   = self.get_pdf(obs)
-        pdf_prd, bins = self.get_pdf(prd)
-        print 'fig1'
+        pdf_prd, bins = self.get_pdf(prd)'
         for i, key in enumerate(prd.keys()):
+            print i, key
             plt.subplot(1,2,i+1)
             plt.plot(bins, pdf_obs[key], '-k', label='obs')
             plt.plot(bins, pdf_prd[key], '-r', label='prd')
             plt.title(key+'-'+key)
         plt.legend()
         plt.show()
-        print 'fig2'
         fig = plt.gcf()
         fig.set_size_inches(12, 5)
         filepath = self.testObj.path_test_output + self.filename + '.pdf'
