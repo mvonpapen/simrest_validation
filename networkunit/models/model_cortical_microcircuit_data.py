@@ -116,4 +116,5 @@ class microcircuit_data_annotate_sts(cortical_microcircuit_data):
             st.annotations['neu_type'] = 'exc'
         self.spiketrains = sts_inh
         self.spiketrains.extend(sts_exc)
+        print 'test sts'
         return self.spiketrains
