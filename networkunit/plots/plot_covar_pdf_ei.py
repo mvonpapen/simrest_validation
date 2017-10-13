@@ -21,7 +21,7 @@ class covar_pdf_ei:
         obs = self.testObj.observation
         prd = self.testObj.prediction
         pdf_obs, __   = self.get_pdf(obs)
-        pdf_prd, bins = self.get_pdf(prd)'
+        pdf_prd, bins = self.get_pdf(prd)
         for i, key in enumerate(prd.keys()):
             print i, key
             plt.subplot(1,2,i+1)
