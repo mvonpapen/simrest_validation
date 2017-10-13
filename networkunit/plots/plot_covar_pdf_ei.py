@@ -23,7 +23,6 @@ class covar_pdf_ei:
         pdf_obs, __   = self.get_pdf(obs)
         pdf_prd, bins = self.get_pdf(prd)
         for i, key in enumerate(prd.keys()):
-            print i, key
             plt.subplot(1,2,i+1)
             plt.plot(bins, pdf_obs[key], '-k', label='obs')
             plt.plot(bins, pdf_prd[key], '-r', label='prd')
