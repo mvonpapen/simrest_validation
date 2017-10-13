@@ -5,6 +5,7 @@ from elephant.spike_train_generation import single_interaction_process as SIP
 from elephant.spike_train_generation import compound_poisson_process as CPP
 from elephant.spike_train_generation import homogeneous_poisson_process as HPP
 from quantities import ms, Hz, quantity
+from networkunit.plots import rasterplot
 import neo
 import random
 
@@ -18,7 +19,7 @@ class stochastic_activity(sciunit.Model, ProducesSpikeTrains):
               't_stop': 10000 * ms,
               'rate': 10 * Hz,
               'statistic': 'poisson',
-              'correlation_method': 'CPP', # 'spatio-temporal'
+              'correlation_method': 'CPP', # 'spatio-temporal', 'pairwise_equivalent'
               'expected_binsize': 2 * ms,
               'correlations': 0.,
               'assembly_sizes': [],
@@ -60,7 +61,6 @@ class stochastic_activity(sciunit.Model, ProducesSpikeTrains):
             if sum(nbr_of_pairs)*2 > self.size:
                 raise ValueError, 'Assemblies are too large to generate an ' \
                                   'pairwise equivalent with the network size.'
-            print nbr_of_pairs
             self.assembly_sizes = [2] * sum(nbr_of_pairs)
             self.correlations = new_correlation
             self.correlation_method = 'CPP'
@@ -74,7 +74,7 @@ class stochastic_activity(sciunit.Model, ProducesSpikeTrains):
                 = self._generate_assembly(correlation=self.correlations[i],
                                           A_size=a_size)
             for j in range(a_size):
-                spiketrains[generated_sts + j].annotations = {'Assembly {}'.format(i)}
+                spiketrains[generated_sts + j].annotations = {'Assembly': i}
 
         # generate background
         if self.bkgr_correlation > 0:
@@ -122,7 +122,7 @@ class stochastic_activity(sciunit.Model, ProducesSpikeTrains):
         amp_dist[1] = 1. - syncprob - bkgr_syncprob
         amp_dist[2] = bkgr_syncprob
         amp_dist[A_size] = syncprob
-        np.testing.assert_almost_equal(sum(amp_dist), 1., decimal=1)
+        np.testing.assert_almost_equal(sum(amp_dist), 1., decimal=4)
         amp_dist *= (1. / sum(amp_dist))
         return CPP(rate=self.rate, A=amp_dist,
                    t_start=self.t_start, t_stop=self.t_stop)
@@ -134,13 +134,14 @@ class stochastic_activity(sciunit.Model, ProducesSpikeTrains):
             shift = np.random.rand() * self.max_pattern_length \
                                      - self.max_pattern_length
             shift = float(shift.rescale('ms'))
-            pos_fugitives = np.where(spiketimes + shift >= float(self.t_stop))[0]
-            neg_fugitives = np.where(spiketimes + shift <= float(self.t_start))[0]
+            spiketimes = spiketimes + shift
+            pos_fugitives = np.where(spiketimes >= float(self.t_stop))[0]
+            neg_fugitives = np.where(spiketimes <= float(self.t_start))[0]
             spiketimes[pos_fugitives] = spiketimes[pos_fugitives] - float(
                 self.t_stop)
             spiketimes[neg_fugitives] = spiketimes[neg_fugitives] + float(
                 self.t_stop - self.t_start)
-            shifted_assembly_sts[i] = neo.SpikeTrain(times=spiketimes,
+            shifted_assembly_sts[i] = neo.SpikeTrain(times=sorted(spiketimes),
                                                      units='ms',
                                                      t_start=self.t_start,
                                                      t_stop=self.t_stop)
@@ -149,13 +150,14 @@ class stochastic_activity(sciunit.Model, ProducesSpikeTrains):
     def _correlation_to_syncprob(self, cc, A_size, rate, T, binsize):
         if A_size < 2:
             raise ValueError
-        if cc == 1:
-            return 1
+        if cc == 1.:
+            return 1.
+        if not cc:
+            return 0.
         m0 = rate * T / (float(T)/float(binsize))
         if type(m0) == quantity.Quantity:
             m0 = m0.rescale('dimensionless')
         n = float(A_size)
-
         root = np.sqrt(cc ** 2 * n ** 2
                        - 2 * cc ** 2 * n
                        + cc ** 2
@@ -166,7 +168,6 @@ class stochastic_activity(sciunit.Model, ProducesSpikeTrains):
                        - 4 * m0 * n
                        + 4 * m0
                        + n ** 2)
-
         adding = (- 2 * cc * m0 * n
                   + 2 * cc * m0
                   + cc * n ** 2
@@ -174,11 +175,8 @@ class stochastic_activity(sciunit.Model, ProducesSpikeTrains):
                   + 2 * m0 * n
                   - 2 * m0
                   - n ** 2)
-
         denominator = 2 * (cc - 1.) * m0 * (n - 1.) ** 2
-
         sync_prob = (n * root + adding) / denominator
-
         if type(sync_prob) == quantity.Quantity:
             if bool(sync_prob.dimensionality):
                 raise ValueError
@@ -187,9 +185,8 @@ class stochastic_activity(sciunit.Model, ProducesSpikeTrains):
         else:
             return sync_prob
 
-    # def show_rasterplot(self, **kawrgs):
-    #     ToDo: include viziphant rasterplot
-
+    def show_rasterplot(self, **kwargs):
+        return rasterplot(self.spiketrains, **kwargs)
 
 
 # Todo: Handle quantitiy inputs which are not ms or Hz

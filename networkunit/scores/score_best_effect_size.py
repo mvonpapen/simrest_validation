@@ -1,14 +1,16 @@
 from __future__ import division
-## Cant get pymc to work in collab, pip install pymc fails
-#import best
-#from pymc import Uniform, Normal, Exponential, NoncentralT, deterministic, Model, MCMC
 import numpy as np
 import sciunit
 import matplotlib.pyplot as plt
 from matplotlib.transforms import blended_transform_factory
 import matplotlib.ticker as mticker
 import matplotlib.lines as mpllines
-
+try:
+    import best
+    from pymc import Uniform, Normal, Exponential, NoncentralT, deterministic, Model, MCMC
+    pymc = True
+except:
+    pymc = False
 
 class best_effect_size(sciunit.Score):
     """
