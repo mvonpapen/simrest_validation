@@ -29,7 +29,6 @@ class LeveneScore(sciunit.Score):
 
     @classmethod
     def compute(cls, observation, prediction):
-        print 'score'
         """
         Computes p-value of probability that variances are equal.
         """

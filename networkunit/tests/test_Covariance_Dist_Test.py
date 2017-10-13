@@ -77,7 +77,6 @@ class Covariance_Dist_Test(sciunit.Test):
         sciunit.Test.__init__(self, observation, name)
 
         self.directory_output = './output/'
-        print 'test 1'
 
     #----------------------------------------------------------------------
 
@@ -131,7 +130,9 @@ class Covariance_Dist_Test(sciunit.Test):
     def generate_prediction(self, model, verbose=False):
         """Implementation of sciunitc.Test.generate_prediction."""
         self.model_name = model.name
+        print 'check 1'
         sts = model.spiketrains
+        print 'check 2'
         self.format_data(sts)
         prediction = self.covariance_analysis(sts)
         return prediction
