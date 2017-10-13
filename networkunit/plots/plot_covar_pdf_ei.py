@@ -28,6 +28,7 @@ class covar_pdf_ei:
             plt.plot(bins, pdf_prd[key], '-r', label='prd')
             plt.title(key+'-'+key)
         plt.legend()
+        plt.tight_layout()
         plt.show()
         fig = plt.gcf()
         fig.set_size_inches(12, 5)
