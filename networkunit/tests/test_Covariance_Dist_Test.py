@@ -184,8 +184,10 @@ class Covariance_Dist_Test(sciunit.Test):
             C: dictionary of exc/inh containing elements covariance matrices
         '''
         covm, neu_types = self.cross_covariance(sts, binsize=binsize)
+        print np.shape(neu_types), np.shape(covm)
         C   = dict()   
         for nty in set(neu_types):
+            print nty
             ids = np.where([neu_types[i]==nty for i in xrange(len(covm))])[0]
             C[nty] = self.get_Cei(covm, ids)       
         return C
@@ -826,7 +828,6 @@ class DisCo_Test_Rest(Covariance_Dist_Test):
             binned    = np.hstack( (st_binned[i].to_array() for i in xrange(Ntrial)) )
             print 'Resting periods concatenated.'
         covm = np.cov(binned)       
-        print np.shape(neu_types), neu_types[0]
         return covm, neu_types
      
 
