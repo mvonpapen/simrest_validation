@@ -186,7 +186,7 @@ class Covariance_Dist_Test(sciunit.Test):
         covm, neu_types = self.cross_covariance(sts, binsize=binsize)
         C   = dict()   
         for nty in set(neu_types):
-            ids = np.where([neu_types[i]==nty for i in xrange(len(sts))])[0]
+            ids = np.where([neu_types[i]==nty for i in xrange(len(covm))])[0]
             C[nty] = self.get_Cei(covm, ids)       
         return C
             
@@ -794,7 +794,6 @@ class DisCo_Test_Rest(Covariance_Dist_Test):
         for sts_segs in sts_exp:                    
             self.format_data(sts_segs)
         observation = self.covariance_analysis(sts_exp)
-        print np.shape(observation)
         self.figures = []
         sciunit.Test.__init__(self, observation, name)
 
@@ -826,7 +825,8 @@ class DisCo_Test_Rest(Covariance_Dist_Test):
                 for i in xrange(Ntrial)]
             binned    = np.hstack( (st_binned[i].to_array() for i in xrange(Ntrial)) )
             print 'Resting periods concatenated.'
-        covm = np.cov(binned)
+        covm = np.cov(binned)        
+        print np.shape(covm)
         return covm, neu_types
      
 
