@@ -822,6 +822,7 @@ class DisCo_Test_Rest(Covariance_Dist_Test):
             st_binned = [elephant.conversion.BinnedSpikeTrain(sts[i,:], binsize = binsize) 
                 for i in xrange(Ntrial)]
             binned    = np.hstack( (st_binned[i].to_array() for i in xrange(Ntrial)) )
+            print 'Resting periods concatenated.'
         covm = np.cov(binned)
         return covm
      
@@ -865,6 +866,7 @@ class DisCo_Test_Rest(Covariance_Dist_Test):
         sts_rest = []
         df = open('./nikos2_segments_coarse.txt')
         segdict = Janson(df)
+        print 'Segmentation file loaded.'
         df.close()
         segs = np.array(segdict['RS'])
         lenSTS  = np.int(sts[0].t_stop.magnitude/sts[0].sampling_rate.magnitude)
@@ -876,4 +878,5 @@ class DisCo_Test_Rest(Covariance_Dist_Test):
                 tmp.append(x.time_slice(t_start*pq.s,t_stop*pq.s))
             sts_rest.append(np.asarray(tmp))
         sts_rest = np.array(sts_rest)
+        print 'Filtered for rest.'
         return sts_rest    
