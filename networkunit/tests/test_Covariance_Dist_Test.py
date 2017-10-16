@@ -844,13 +844,13 @@ class DisCo_Test_Rest(Covariance_Dist_Test):
                                    nsx_to_load = 2, load_waveforms = True)
         # load only those spike trains with annotation 'sua' = True
         sts = np.asarray([ st for st in block.segments[0].spiketrains
-                           if st.annotations['sua'] ])
-        if class_file is not None:         
-            self.neuron_type_separation(sts, 
-                                        eiThres=eiThres,
-                                        class_file=class_file)                       
+                           if st.annotations['sua'] ])                    
         print 'Nikos2 data loaded'      
         sts_rest = self.load_rest_state(sts)
+        for st in sts_rest:         
+            self.neuron_type_separation(st, 
+                                        eiThres=eiThres,
+                                        class_file=class_file)   
         return sts_rest
         
         
@@ -866,7 +866,6 @@ class DisCo_Test_Rest(Covariance_Dist_Test):
         sts_rest = []
         df = open('./nikos2_segments_coarse.txt')
         segdict = Janson(df)
-        print 'Segmentation file loaded.'
         df.close()
         segs = np.array(segdict['RS'])
         lenSTS  = np.int(sts[0].t_stop.magnitude/sts[0].sampling_rate.magnitude)
