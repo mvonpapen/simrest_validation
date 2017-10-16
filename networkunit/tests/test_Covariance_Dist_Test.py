@@ -133,9 +133,7 @@ class Covariance_Dist_Test(sciunit.Test):
         self.model_name = model.name
         sts = model.spiketrains
         self.format_data(sts)
-        print np.shape(sts)
         prediction = self.covariance_analysis(sts)
-        print np.shape(prediction)
         return prediction
 
     #----------------------------------------------------------------------
@@ -817,7 +815,7 @@ class DisCo_Test_Rest(Covariance_Dist_Test):
             minNspk spikes, otherwise assigned value is NaN. Diagonal is NaN
         '''
         # for prediction: list of neo spiketrains, no concatenation needed
-        if sts[0] is neo.core.spiketrain.SpikeTrain:
+        if type(sts[0]) is neo.core.spiketrain.SpikeTrain:
             print 'Binning simulated data...'
             neu_types = self.get_neuron_types(sts)
             binned = elephant.conversion.BinnedSpikeTrain(sts, binsize = binsize)
@@ -828,7 +826,6 @@ class DisCo_Test_Rest(Covariance_Dist_Test):
             st_binned = [elephant.conversion.BinnedSpikeTrain(sts[i,:], binsize = binsize) 
                 for i in xrange(Ntrial)]
             binned    = np.hstack( (st_binned[i].to_array() for i in xrange(Ntrial)) )
-            print 'Resting periods concatenated.'
         covm = np.cov(binned)       
         return covm, neu_types
      
