@@ -825,8 +825,8 @@ class DisCo_Test_Rest(Covariance_Dist_Test):
                 for i in xrange(Ntrial)]
             binned    = np.hstack( (st_binned[i].to_array() for i in xrange(Ntrial)) )
             print 'Resting periods concatenated.'
-        covm = np.cov(binned)        
-        print np.shape(covm)
+        covm = np.cov(binned)       
+        print np.shape(neu_types), neu_types[0]
         return covm, neu_types
      
 
