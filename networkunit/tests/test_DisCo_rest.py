@@ -38,7 +38,7 @@ from json import load as Janson
 
 #%% ==============================================================================
 
-class DisCo_Test_Rest(sciunit.Test):
+class DisCo_rest(sciunit.Test):
     """
     Tests for equal variances of cross-covariances of neural network simulation
     against experimental data obtained from Utah array in (pre)motor cortex of 
