@@ -794,6 +794,7 @@ class DisCo_Test_Rest(Covariance_Dist_Test):
         for sts_segs in sts_exp:                    
             self.format_data(sts_segs)
         observation = self.covariance_analysis(sts_exp)
+        print np.shape(observation)
         self.figures = []
         sciunit.Test.__init__(self, observation, name)
 
@@ -849,10 +850,9 @@ class DisCo_Test_Rest(Covariance_Dist_Test):
                            if st.annotations['sua'] ])                    
         print 'Nikos2 data loaded'      
         sts_rest = self.load_rest_state(sts)
-        for st in sts_rest:         
-            self.neuron_type_separation(st, 
-                                        eiThres=eiThres,
-                                        class_file=class_file)   
+        self.neuron_type_separation(sts_rest[0,:], 
+                                    eiThres=eiThres,
+                                    class_file=class_file)   
         return sts_rest
         
         
