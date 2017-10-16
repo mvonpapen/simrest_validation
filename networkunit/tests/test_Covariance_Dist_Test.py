@@ -133,7 +133,9 @@ class Covariance_Dist_Test(sciunit.Test):
         self.model_name = model.name
         sts = model.spiketrains
         self.format_data(sts)
+        print np.shape(sts)
         prediction = self.covariance_analysis(sts)
+        print np.shape(prediction)
         return prediction
 
     #----------------------------------------------------------------------
@@ -184,10 +186,8 @@ class Covariance_Dist_Test(sciunit.Test):
             C: dictionary of exc/inh containing elements covariance matrices
         '''
         covm, neu_types = self.cross_covariance(sts, binsize=binsize)
-        print np.shape(neu_types), np.shape(covm)
         C   = dict()   
         for nty in set(neu_types):
-            print nty
             ids = np.where([neu_types[i]==nty for i in xrange(len(covm))])[0]
             C[nty] = self.get_Cei(covm, ids)       
         return C
