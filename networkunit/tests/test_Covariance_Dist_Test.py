@@ -818,7 +818,7 @@ class DisCo_Test_Rest(Covariance_Dist_Test):
         if type(sts[0]) is neo.core.spiketrain.SpikeTrain:
             print 'Binning simulated data...'
             neu_types = self.get_neuron_types(sts)
-            binned = elephant.conversion.BinnedSpikeTrain(sts, binsize = binsize)
+            binned = elephant.conversion.BinnedSpikeTrain(sts, binsize = binsize).to_array()
         else:
             print 'Binning experimental data...'
             Ntrial, _ = np.shape(sts)
