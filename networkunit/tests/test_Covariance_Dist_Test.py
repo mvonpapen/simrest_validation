@@ -183,8 +183,7 @@ class Covariance_Dist_Test(sciunit.Test):
         OUTPUT:
             C: dictionary of exc/inh containing elements covariance matrices
         '''
-        covm = self.cross_covariance(sts, binsize=binsize)
-        neu_types = self.get_neuron_types(sts)
+        covm, neu_types = self.cross_covariance(sts, binsize=binsize)
         C   = dict()   
         for nty in set(neu_types):
             ids = np.where([neu_types[i]==nty for i in xrange(len(sts))])[0]
@@ -205,7 +204,8 @@ class Covariance_Dist_Test(sciunit.Test):
             covm: square array N x N of cross-covariances with the constrain, 
             that each spike train in correlated pair has to consist of at least 
             minNspk spikes, otherwise assigned value is NaN. Diagonal is NaN
-        '''
+        '''        
+        neu_types = self.get_neuron_types(sts)
         binned = elephant.conversion.BinnedSpikeTrain(sts, binsize = binsize)
         covm = elephant.spike_train_correlation.covariance(binned)
         for i, st in enumerate(sts):
@@ -213,7 +213,7 @@ class Covariance_Dist_Test(sciunit.Test):
                 covm[i,:] = np.NaN
                 covm[:,i] = np.NaN
             covm[i,i] = np.NaN
-        return covm
+        return covm, neu_types
     
     
             
@@ -816,15 +816,17 @@ class DisCo_Test_Rest(Covariance_Dist_Test):
         '''
         # for prediction: list of neo spiketrains, no concatenation needed
         if sts[0] is neo.core.spiketrain.SpikeTrain:
+            neu_types = self.get_neuron_types(sts)
             binned = elephant.conversion.BinnedSpikeTrain(sts, binsize = binsize)
         else:
             Ntrial, _ = np.shape(sts)
+            neu_types = self.get_neuron_types(sts[0,:])
             st_binned = [elephant.conversion.BinnedSpikeTrain(sts[i,:], binsize = binsize) 
                 for i in xrange(Ntrial)]
             binned    = np.hstack( (st_binned[i].to_array() for i in xrange(Ntrial)) )
             print 'Resting periods concatenated.'
         covm = np.cov(binned)
-        return covm
+        return covm, neu_types
      
 
     def load_nikos2rs(self,
