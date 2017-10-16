@@ -784,7 +784,7 @@ class DisCo_Test_Rest(Covariance_Dist_Test):
         if not os.path.isfile('i140701-004-04.txt'): 
             client.download_file(COLLAB_PATH + 'data/i140701-004-04.txt', './i140701-004-04.txt')
         if not os.path.isfile('i140701-004-04.txt'): 
-            client.download_file(COLLAB_PATH + 'data/segments_coarse.txt', './segments_coarse.txt')
+            client.download_file(COLLAB_PATH + 'data/segments_coarse.txt', './nikos2_segments_coarse.txt')
         print 'downloaded raw data from collab #2493'
         # set path
         datadir = './'
