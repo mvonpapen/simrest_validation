@@ -818,9 +818,11 @@ class DisCo_Test_Rest(Covariance_Dist_Test):
         '''
         # for prediction: list of neo spiketrains, no concatenation needed
         if sts[0] is neo.core.spiketrain.SpikeTrain:
+            print 'Binning simulated data...'
             neu_types = self.get_neuron_types(sts)
             binned = elephant.conversion.BinnedSpikeTrain(sts, binsize = binsize)
         else:
+            print 'Binning experimental data...'
             Ntrial, _ = np.shape(sts)
             neu_types = self.get_neuron_types(sts[0,:])
             st_binned = [elephant.conversion.BinnedSpikeTrain(sts[i,:], binsize = binsize) 
