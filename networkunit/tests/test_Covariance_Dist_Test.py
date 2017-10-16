@@ -756,7 +756,7 @@ class RestingStateIO(BlackrockIO):
         
 
 #%% ==============================================================================        
-class DisCo_Test_Rest(sciunit.Test):
+class DisCo_Test_Rest(Covariance_Dist_Test):
     """
     Tests for equal variances of cross-covariances of neural network simulation
     against experimental data obtained from Utah array in (pre)motor cortex of 
