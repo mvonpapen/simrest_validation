@@ -863,7 +863,7 @@ class DisCo_Test_Rest(Covariance_Dist_Test):
             sts: list of list neo SpikeTrains with N(rest_periods) x N(units)
         '''
         sts_rest = []
-        df = open('./simrest_validation/nikos2_segments_coarse.txt')
+        df = open('./nikos2_segments_coarse.txt')
         segdict = Janson(df)
         df.close()
         segs = np.array(segdict['RS'])
