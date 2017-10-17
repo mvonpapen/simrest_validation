@@ -74,7 +74,8 @@ class DisCo_Test_State(sciunit.Test):
                                      class_file = class_file)
         for sts_segs in sts_exp:                    
             self.format_data(sts_segs)
-        observation = self.covariance_analysis(sts_exp)
+        observation = self.covariance_analysis(sts_exp)        
+        observation = observation[self.neu_type]
         self.figures = []
         sciunit.Test.__init__(self, observation, name)
 
@@ -136,6 +137,7 @@ class DisCo_Test_State(sciunit.Test):
         sts = model.spiketrains
         self.format_data(sts)
         prediction = self.covariance_analysis(sts)
+        prediction = prediction[self.neu_type]
         return prediction
 
     #----------------------------------------------------------------------
@@ -143,7 +145,7 @@ class DisCo_Test_State(sciunit.Test):
     def compute_score(self, observation, prediction, verbose=False):
         """Implementation of sciunit.Test.score_prediction."""
         # pass non-NaN values to score
-        self.score = self.score_type.compute(observation, prediction, self.neu_type)
+        self.score = self.score_type.compute(observation, prediction)
         self.score.description = "A Levene Test score"
 
         # create output directory

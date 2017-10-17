@@ -28,13 +28,13 @@ class LeveneScore(sciunit.Score):
                   + "occurred based on random sampling from a population with equal variances.")
 
     @classmethod
-    def compute(cls, observation, prediction, key):
+    def compute(cls, observation, prediction):
         """
         Computes p-value of probability that variances are equal.
         """
         
-        x = prediction[key][~np.isnan(prediction[key])]
-        y = observation[key][~np.isnan(observation[key])]
+        x = prediction[~np.isnan(prediction)]
+        y = observation[~np.isnan(observation)]
         pvalue = levene(x, y).pvalue
         return LeveneScore(pvalue)
 
