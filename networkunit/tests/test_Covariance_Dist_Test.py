@@ -208,7 +208,7 @@ class Covariance_Dist_Test(sciunit.Test):
         '''        
         neu_types = self.get_neuron_types(sts)
         binned = elephant.conversion.BinnedSpikeTrain(sts, binsize = binsize)
-        print binned.toarray()[0,20]
+        print binned.to_array()[0,20]
         covm = elephant.spike_train_correlation.covariance(binned)
         for i, st in enumerate(sts):
             if len(st) < minNspk:
