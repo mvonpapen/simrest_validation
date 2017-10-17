@@ -134,7 +134,6 @@ class Covariance_Dist_Test(sciunit.Test):
         sts = model.spiketrains
         self.format_data(sts)
         prediction = self.covariance_analysis(sts)
-        print np.mean(prediction['exc']), np.mean(prediction['inh'])
         return prediction
 
     #----------------------------------------------------------------------
@@ -183,12 +182,13 @@ class Covariance_Dist_Test(sciunit.Test):
             nbins: number of bins within binrange
         OUTPUT:
             C: dictionary of exc/inh containing elements covariance matrices
+               with auto-covariances set to nan
         '''
         covm, neu_types = self.cross_covariance(sts, binsize=binsize)
         C   = dict()   
         for nty in set(neu_types):
             ids = np.where([neu_types[i]==nty for i in xrange(len(covm))])[0]
-            C[nty] = self.get_Cei(covm, ids)       
+            C[nty] = self.get_Cei(covm, ids) 
         return C
             
         
@@ -208,13 +208,8 @@ class Covariance_Dist_Test(sciunit.Test):
         '''        
         neu_types = self.get_neuron_types(sts)
         binned = elephant.conversion.BinnedSpikeTrain(sts, binsize = binsize)
-        print np.shape(binned.to_array())
         covm = elephant.spike_train_correlation.covariance(binned)
-        for i, st in enumerate(sts):
-#            if len(st) < minNspk:
-#                covm[i,:] = np.NaN
-#                covm[:,i] = np.NaN
-            covm[i,i] = np.NaN
+        np.fill_diagonal(covm, np.nan)
         return covm, neu_types
     
     
@@ -821,7 +816,6 @@ class DisCo_Test_Rest(Covariance_Dist_Test):
             print 'Binning simulated data...'
             neu_types = self.get_neuron_types(sts)
             binned = elephant.conversion.BinnedSpikeTrain(sts, binsize = binsize).to_array()
-            print np.shape(binned.to_array())
         else:
             print 'Binning experimental data...'
             Ntrial, _ = np.shape(sts)
@@ -829,7 +823,8 @@ class DisCo_Test_Rest(Covariance_Dist_Test):
             st_binned = [elephant.conversion.BinnedSpikeTrain(sts[i,:], binsize = binsize) 
                 for i in xrange(Ntrial)]
             binned    = np.hstack( (st_binned[i].to_array() for i in xrange(Ntrial)) )
-        covm = np.cov(binned)       
+        covm = np.cov(binned)  
+        np.fill_diagonal(covm, np.nan)     
         return covm, neu_types
      
 

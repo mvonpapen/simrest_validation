@@ -1,5 +1,5 @@
 import numpy as np
-import matplotlib
+#import matplotlib
 # Force matplotlib to not use any Xwindows backend.
 #matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -48,7 +48,7 @@ class covar_pdf_ei:
             nbins: number of bins within binrange
         OUTPUT: 
             pdf: dictionary of probability density distributions for 
-                 'exc' and 'inh'
+                 cross-covariances of 'exc' and 'inh'
             bins: bin centers for pdf
         '''
         pdf = dict()   
