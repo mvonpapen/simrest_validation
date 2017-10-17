@@ -979,7 +979,7 @@ class DisCo_Test_State(Covariance_Dist_Test):
         sts = np.asarray([ st for st in block.segments[0].spiketrains
                            if st.annotations['sua'] ])                    
         print 'Nikos2 data loaded'      
-        sts_state = self.load_rest_state(sts)
+        sts_state = self.load_state(sts)
         self.neuron_type_separation(sts_state[0,:], 
                                     eiThres=eiThres,
                                     class_file=class_file)   
