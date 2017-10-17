@@ -28,21 +28,15 @@ class LeveneScore(sciunit.Score):
                   + "occurred based on random sampling from a population with equal variances.")
 
     @classmethod
-    def compute(cls, observation, prediction):
+    def compute(cls, observation, prediction, key):
         """
         Computes p-value of probability that variances are equal.
         """
-        assert isinstance(prediction,dict)
-        assert isinstance(observation,dict)
         
-        pvalue = dict()
-        for key in prediction.keys():
-            x = prediction[key][~np.isnan(prediction[key])]
-            y = observation[key][~np.isnan(observation[key])]
-            pvalue[key] = levene(x, y).pvalue
-        ## TODO ## possible to return both scores? that would be better
-        max_pval = np.nanmax(pvalue.values())
-        return LeveneScore(max_pval)
+        x = prediction[key][~np.isnan(prediction[key])]
+        y = observation[key][~np.isnan(observation[key])]
+        pvalue = levene(x, y).pvalue
+        return LeveneScore(pvalue)
 
     @property
     def sort_key(self):

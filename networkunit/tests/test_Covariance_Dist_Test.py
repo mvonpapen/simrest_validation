@@ -143,7 +143,7 @@ class DisCo_Test_State(sciunit.Test):
     def compute_score(self, observation, prediction, verbose=False):
         """Implementation of sciunit.Test.score_prediction."""
         # pass non-NaN values to score
-        self.score = self.score_type.compute(observation, prediction)
+        self.score = self.score_type.compute(observation, prediction, self.neu_type)
         self.score.description = "A Levene Test score"
 
         # create output directory
@@ -790,10 +790,18 @@ class RestingStateIO(BlackrockIO):
        
 #%% ==============================================================================        
 
-class DisCo_Test_Rest(DisCo_Test_State):
-    state = 'RS'
+class DisCo_Test_Rest_Exc(DisCo_Test_State):
+    state    = 'RS'
+    neu_type = 'exc'
         
-        
-         
-class DisCo_Test_Move(DisCo_Test_State):
-    state = 'M'
+class DisCo_Test_Move_Exc(DisCo_Test_State):
+    state    = 'M'       
+    neu_type = 'exc'
+
+class DisCo_Test_Rest_Inh(DisCo_Test_State):
+    state    = 'RS'
+    neu_type = 'inh'
+                         
+class DisCo_Test_Move_Inh(DisCo_Test_State):
+    state    = 'M'       
+    neu_type = 'inh'
