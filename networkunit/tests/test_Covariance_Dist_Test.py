@@ -821,7 +821,7 @@ class DisCo_Test_Rest(Covariance_Dist_Test):
             print 'Binning simulated data...'
             neu_types = self.get_neuron_types(sts)
             binned = elephant.conversion.BinnedSpikeTrain(sts, binsize = binsize).to_array()
-        print np.shape(binned.to_array())
+            print np.shape(binned.to_array())
         else:
             print 'Binning experimental data...'
             Ntrial, _ = np.shape(sts)
