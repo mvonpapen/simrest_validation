@@ -134,7 +134,7 @@ class Covariance_Dist_Test(sciunit.Test):
         sts = model.spiketrains
         self.format_data(sts)
         prediction = self.covariance_analysis(sts)
-        print np.mean(prediction)
+        print np.mean(prediction['exc'])
         return prediction
 
     #----------------------------------------------------------------------
