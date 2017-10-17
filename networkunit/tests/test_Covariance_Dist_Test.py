@@ -134,7 +134,7 @@ class Covariance_Dist_Test(sciunit.Test):
         sts = model.spiketrains
         self.format_data(sts)
         prediction = self.covariance_analysis(sts)
-        print np.mean(prediction['exc'])
+        print np.mean(prediction['exc']), np.mean(prediction['inh'])
         return prediction
 
     #----------------------------------------------------------------------
@@ -208,12 +208,12 @@ class Covariance_Dist_Test(sciunit.Test):
         '''        
         neu_types = self.get_neuron_types(sts)
         binned = elephant.conversion.BinnedSpikeTrain(sts, binsize = binsize)
-        print binned.to_array()[0,20]
+        print np.shape(binned.to_array())
         covm = elephant.spike_train_correlation.covariance(binned)
         for i, st in enumerate(sts):
-            if len(st) < minNspk:
-                covm[i,:] = np.NaN
-                covm[:,i] = np.NaN
+#            if len(st) < minNspk:
+#                covm[i,:] = np.NaN
+#                covm[:,i] = np.NaN
             covm[i,i] = np.NaN
         return covm, neu_types
     
@@ -821,7 +821,7 @@ class DisCo_Test_Rest(Covariance_Dist_Test):
             print 'Binning simulated data...'
             neu_types = self.get_neuron_types(sts)
             binned = elephant.conversion.BinnedSpikeTrain(sts, binsize = binsize).to_array()
-            print binned[0,20]
+        print np.shape(binned.to_array())
         else:
             print 'Binning experimental data...'
             Ntrial, _ = np.shape(sts)
