@@ -878,4 +878,146 @@ class DisCo_Test_Rest(Covariance_Dist_Test):
             sts_rest.append(np.asarray(tmp))
         sts_rest = np.array(sts_rest)
         print 'Filtered for rest.'
-        return sts_rest    
+        return sts_rest
+        
+        
+        
+        
+        
+#%% ==============================================================================        
+class DisCo_Test_State(Covariance_Dist_Test):
+    """
+    Tests for equal variances of cross-covariances of neural network simulation
+    against experimental data obtained from Utah array in (pre)motor cortex of 
+    macaque monkey during resting state
+    """
+    score_type = netsco.LeveneScore
+    id = -1## TODO ## dont know what to set here
+
+    def __init__(self, 
+                 client=None,
+                 name="Covariance dist. - resting state - motor cortex"):
+        description = ("Tests the covariance distribution of motor cortex "
+                       +"during resting state")
+        self.units = quantities.um
+        required_capabilities = (cap.ProducesSpikeTrains,)
+
+        # Load data from collab storage
+        COLLAB_PATH = '/2493/'
+        if not os.path.isfile('i140701-004.ns2'): 
+            client.download_file(COLLAB_PATH + 'data/i140701-004.ns2', './i140701-004.ns2')
+        if not os.path.isfile('i140701-004.nev'): 
+            client.download_file(COLLAB_PATH + 'data/i140701-004.nev', './i140701-004.nev')
+        if not os.path.isfile('i140701-004-04.nev'): 
+            client.download_file(COLLAB_PATH + 'data/i140701-004-04.nev', './i140701-004-04.nev')
+        if not os.path.isfile('i140701-004-04.txt'): 
+            client.download_file(COLLAB_PATH + 'data/i140701-004-04.txt', './i140701-004-04.txt')
+        if not os.path.isfile('nikos2_segments_coarse.txt'): 
+            client.download_file(COLLAB_PATH + 'data/segments_coarse.txt', './nikos2_segments_coarse.txt')
+        print 'downloaded raw data from collab #2493'
+        # set path
+        datadir = './'
+        class_file = './simrest_validation/nikos2rs_consistency_EIw035complexc04.txt'
+        sts_exp = self.load_nikos2rs(path2file  = datadir, 
+                                     class_file = class_file)
+        for sts_segs in sts_exp:                    
+            self.format_data(sts_segs)
+        observation = self.covariance_analysis(sts_exp)
+        self.figures = []
+        sciunit.Test.__init__(self, observation, name)
+
+        self.directory_output = './output/'
+            
+        
+        
+    def cross_covariance(self, sts, binsize, minNspk=3):
+        '''
+        Calculates cross-covariances between spike trains. 
+        Auto-covariances are set to NaN.
+        INPUT:
+            sts: list of N spiketrains that have been annotated (exc/inh)
+            binsize: quantities value for binned spiketrain
+            minNspk: minimal number of spikes in a spike train (or else NaN)
+        OUTPUT: 
+            covm: square array N x N of cross-covariances with the constrain, 
+            that each spike train in correlated pair has to consist of at least 
+            minNspk spikes, otherwise assigned value is NaN. Diagonal is NaN
+        '''
+        # for prediction: list of neo spiketrains, no concatenation needed
+        if type(sts[0]) is neo.core.spiketrain.SpikeTrain:
+            print 'Binning simulated data...'
+            neu_types = self.get_neuron_types(sts)
+            binned = elephant.conversion.BinnedSpikeTrain(sts, binsize = binsize).to_array()
+        else:
+            print 'Binning experimental data...'
+            Ntrial, _ = np.shape(sts)
+            neu_types = self.get_neuron_types(sts[0,:])
+            st_binned = [elephant.conversion.BinnedSpikeTrain(sts[i,:], binsize = binsize) 
+                for i in xrange(Ntrial)]
+            binned    = np.hstack( (st_binned[i].to_array() for i in xrange(Ntrial)) )
+        covm = np.cov(binned)  
+        np.fill_diagonal(covm, np.nan)     
+        return covm, neu_types
+     
+
+    def load_nikos2rs(self,
+                      path2file = './',
+                      fname = 'i140701-004',
+                      class_file=None, 
+                      eiThres=0.4,
+                      t_start = None, t_stop = None):
+        '''
+        Loads nikos2 resting state data.
+        For spike trains loads only those with annotation 'sua' = True.
+        Returns list of list of spike trains during periods of rest. 
+        '''
+        session = RestingStateIO(path2file+fname) 
+        block = session.read_block(n_starts = t_start, n_stops = t_stop,
+                                   channels = 'all', units = 'all',
+                                   nsx_to_load = 2, load_waveforms = True)
+        # load only those spike trains with annotation 'sua' = True
+        sts = np.asarray([ st for st in block.segments[0].spiketrains
+                           if st.annotations['sua'] ])                    
+        print 'Nikos2 data loaded'      
+        sts_state = self.load_rest_state(sts)
+        self.neuron_type_separation(sts_state[0,:], 
+                                    eiThres=eiThres,
+                                    class_file=class_file)   
+        return sts_state
+        
+        
+        
+    def load_state(self, sts):
+        '''
+        Sorts data into periods of rest  
+        INPUT:
+            sts: list of neo SpikeTrains
+        OUTPUT:
+            sts: list of list neo SpikeTrains with N(rest_periods) x N(units)
+        '''
+        sts_state = []
+        df = open('./nikos2_segments_coarse.txt')
+        segdict = Janson(df)
+        df.close()
+        segs = np.array(segdict[self.state])
+        lenSTS  = np.int(sts[0].t_stop.magnitude/sts[0].sampling_rate.magnitude)
+        for elem in segs:
+            t_start = np.int(elem[0])
+            t_stop  = np.min([np.int(elem[0]+elem[1]), lenSTS])
+            tmp = []
+            for x in sts:
+                tmp.append(x.time_slice(t_start*pq.s,t_stop*pq.s))
+            sts_state.append(np.asarray(tmp))
+        sts_state = np.array(sts_state)
+        print 'Filtered for {}.'.format(self.state)
+        return sts_state 
+        
+        
+         
+class DisCo_Test_Rest(DisCo_Test_State):
+    state = 'RS'
+        
+        
+         
+class DisCo_Test_Move(DisCo_Test_State):
+    state = 'M'
