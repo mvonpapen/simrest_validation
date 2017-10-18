@@ -74,14 +74,11 @@ class DisCo_Test_State(sciunit.Test):
                                      class_file = class_file)
         for sts_segs in sts_exp:                    
             self.format_data(sts_segs)
-        observation = self.covariance_analysis(sts_exp)  
-        print 'got observation', type(observation), self.neu_type
+        observation = self.covariance_analysis(sts_exp)
         observation = observation[self.neu_type]
-        print 'got observation', type(observation), np.shape(observation)
         self.figures = []
         sciunit.Test.__init__(self, observation, name)
         self.directory_output = './output/'
-        print 'finished init'
             
         
     #----------------------------------------------------------------------
@@ -120,16 +117,9 @@ class DisCo_Test_State(sciunit.Test):
         pass
 
     #----------------------------------------------------------------------
-    ## TODO ## is validate observation needed at all?
-#    def validate_observation(self, observation):
-#        try:
-#            for key0 in observation.keys():
-#                for key, val in observation["diameter"].items():
-#                    assert type(observation["diameter"][key]) is quantities.Quantity
-#        except Exception:
-#            raise sciunit.ObservationError(
-#                ("Observation must return a dictionary of the form:"
-#                 "{'diameter': {'mean': 'XX um', 'std': 'YY um'}}"))
+    def validate_observation(self, observation):
+        if not observation:
+            raise sciunit.ObservationError("Observation is empty!")
 
     #----------------------------------------------------------------------
 
