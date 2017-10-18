@@ -149,7 +149,7 @@ class DisCo_Test_State(sciunit.Test):
         self.prediction  = prediction
         # create relevant output files
         # 1. Plot of pdf's
-        pdf_plot = plots.covar_pdf_ei(self)
+        pdf_plot = plots.covar_pdf(self)
         file1 = pdf_plot.create()
         self.figures.append(file1)
         # 2. Text Table

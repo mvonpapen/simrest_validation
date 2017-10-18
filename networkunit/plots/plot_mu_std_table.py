@@ -22,21 +22,20 @@ class mu_std_table:
         dataFile = open(filepath, 'w')
         dataFile.write("==============================================================================\n")
         dataFile.write("Test Name: %s\n" % self.testObj.name)
+        dataFile.write("Neuron type: %s\n" % self.testObj.neu_type)
         dataFile.write("Model Name: %s\n" % self.testObj.model_name)
         dataFile.write("Score Type: %s\n" % self.testObj.score.description)
         dataFile.write("------------------------------------------------------------------------------\n")
-        header_list = ["Neuron type", "Exp. mean", "Exp. std", "Model mean", "Model std"] #, "p-value"]
+        header_list = ["Exp. mean", "Exp. std", "Model mean", "Model std"] #, "p-value"]
         row_list = []
         obs = self.testObj.observation
         prd = self.testObj.prediction
         C_mu_std = self.get_mu_std(obs, prd)
-        for key in self.testObj.prediction.keys():
-            row_list.append([key, 
-                             C_mu_std[key]['obs']['mu'], 
-                             C_mu_std[key]['obs']['std'], 
-                             C_mu_std[key]['prd']['mu'],
-                             C_mu_std[key]['prd']['std'],
-                             ])
+        row_list.append([C_mu_std['obs']['mu'], 
+                         C_mu_std['obs']['std'], 
+                         C_mu_std['prd']['mu'],
+                         C_mu_std['prd']['std'],
+                         ])
         dataFile.write(tabulate(row_list, headers=header_list, tablefmt='orgtbl'))
         dataFile.write("\n------------------------------------------------------------------------------\n")
         dataFile.write("Final Score: %s\n" % self.testObj.score)
@@ -50,16 +49,14 @@ class mu_std_table:
         Calculates mean and standard deviation of values in observation and 
         prediction assuming Gaussian distribution.
         """
-        C_mu_std = dict()
-        for key in prediction.keys():
-            C_mu_std[key] = {
-                'prd' : {
-                    'mu' : np.nanmean(prediction[key]),
-                    'std': np.nanstd (prediction[key]),
-                },
-                'obs' : {
-                    'mu' : np.nanmean(observation[key]),
-                    'std': np.nanstd (observation[key]),
-                }
+        C_mu_std = {
+            'prd' : {
+                'mu' : np.nanmean(prediction),
+                'std': np.nanstd (prediction),
+            },
+            'obs' : {
+                'mu' : np.nanmean(observation),
+                'std': np.nanstd (observation),
             }
+        }
         return C_mu_std        
