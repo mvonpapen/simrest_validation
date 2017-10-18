@@ -75,8 +75,9 @@ class DisCo_Test_State(sciunit.Test):
         for sts_segs in sts_exp:                    
             self.format_data(sts_segs)
         observation = self.covariance_analysis(sts_exp)  
+        print 'got observation', type(observation), self.neu_type
         observation = observation[self.neu_type]
-        print 'got observation'
+        print 'got observation', type(observation), np.shape(observation)
         self.figures = []
         sciunit.Test.__init__(self, observation, name)
         self.directory_output = './output/'
@@ -139,7 +140,6 @@ class DisCo_Test_State(sciunit.Test):
         self.format_data(sts)
         prediction = self.covariance_analysis(sts)
         prediction = prediction[self.neu_type]
-        print 'got prediction'
         return prediction
 
     #----------------------------------------------------------------------
