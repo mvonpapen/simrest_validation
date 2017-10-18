@@ -48,7 +48,7 @@ class DisCo_Test_State(sciunit.Test):
 
     def __init__(self, 
                  client=None,
-                 name="Covariance dist. - resting state - motor cortex"):
+                 name="Distribution of covariances in macaque motor cortex"):
         description = ("Tests the covariance distribution of motor cortex "
                        +"during resting state")
         self.units = quantities.um

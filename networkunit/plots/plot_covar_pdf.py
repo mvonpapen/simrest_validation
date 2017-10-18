@@ -28,7 +28,7 @@ class covar_pdf:
         plt.tight_layout()
         plt.show()
         fig = plt.gcf()
-        fig.set_size_inches(5, 5)
+        fig.set_size_inches(3, 3)
         filepath = self.testObj.path_test_output + self.filename + '.pdf'
         plt.savefig(filepath, dpi=600,)
         return filepath

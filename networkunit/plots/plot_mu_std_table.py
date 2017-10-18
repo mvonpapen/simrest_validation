@@ -23,6 +23,7 @@ class mu_std_table:
         dataFile.write("==============================================================================\n")
         dataFile.write("Test Name: %s\n" % self.testObj.name)
         dataFile.write("Neuron type: %s\n" % self.testObj.neu_type)
+        dataFile.write("Resting state (RS) or movement (M): %s\n" % self.testObj.state)
         dataFile.write("Model Name: %s\n" % self.testObj.model_name)
         dataFile.write("Score Type: %s\n" % self.testObj.score.description)
         dataFile.write("------------------------------------------------------------------------------\n")
