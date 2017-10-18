@@ -204,11 +204,9 @@ class DisCo_Test_State(sciunit.Test):
         '''
         # for prediction: list of neo spiketrains, no concatenation needed
         if type(sts[0]) is neo.core.spiketrain.SpikeTrain:
-            print 'Binning simulated data...'
             neu_types = self.get_neuron_types(sts)
             binned = elephant.conversion.BinnedSpikeTrain(sts, binsize = binsize).to_array()
         else:
-            print 'Binning experimental data...'
             Ntrial, _ = np.shape(sts)
             neu_types = self.get_neuron_types(sts[0,:])
             st_binned = [elephant.conversion.BinnedSpikeTrain(sts[i,:], binsize = binsize) 
@@ -269,8 +267,7 @@ class DisCo_Test_State(sciunit.Test):
                                    nsx_to_load = 2, load_waveforms = True)
         # load only those spike trains with annotation 'sua' = True
         sts = np.asarray([ st for st in block.segments[0].spiketrains
-                           if st.annotations['sua'] ])                    
-        print 'Nikos2 data loaded'      
+                           if st.annotations['sua'] ])       
         sts_state = self.load_state(sts)
         self.neuron_type_separation(sts_state[0,:], 
                                     eiThres=eiThres,
@@ -340,13 +337,14 @@ class DisCo_Test_State(sciunit.Test):
             sts[i].annotations['neu_type'] = 'inh'
         for i in mix:
             sts[i].annotations['neu_type'] = 'mix'
-        print '\n## Classification of waveforms resulted in:'
-        print '{}/{} ({:0.1f}%) neurons classified as putative excitatory'.format(
-            len(exc), Nunits, float(len(exc))/Nunits*100.)
-        print '{}/{} ({:0.1f}%) neurons classified as putative inhibitory'.format(
-            len(inh), Nunits, float(len(inh))/Nunits*100.)
-        print '{}/{} ({:0.1f}%) neurons unclassified (mixed)\n'.format(
-            len(mix), Nunits, float(len(mix))/Nunits*100.)
+        print 'Classification of {} total units resulted in '\
+              '{} ({:0.1f}%) putative excitatory, '\
+              '{} ({:0.1f}%) putative inhibitory, '\
+              'and {} ({:0.1f}%) unclassified units'.format(
+                Nunits, 
+                len(exc), float(len(exc))/Nunits*100., 
+                len(inh), float(len(inh))/Nunits*100.,
+                len(mix), float(len(mix))/Nunits*100.)
             
             
 

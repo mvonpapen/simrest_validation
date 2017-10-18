@@ -17,7 +17,7 @@ class covar_pdf:
         self.filename = "covar_pdf_"+self.testObj.neu_type
 
     def create(self):
-        fig = plt.figure()
+        fig = plt.figure(figsize=(5,5))
         obs = self.testObj.observation
         prd = self.testObj.prediction
         pdf_obs, __   = self.get_pdf(obs)
@@ -28,7 +28,7 @@ class covar_pdf:
         plt.tight_layout()
         plt.show()
         fig = plt.gcf()
-        fig.set_size_inches(3, 3)
+        fig.set_size_inches(5, 5)
         filepath = self.testObj.path_test_output + self.filename + '.pdf'
         plt.savefig(filepath, dpi=600,)
         return filepath
