@@ -118,7 +118,7 @@ class DisCo_Test_State(sciunit.Test):
 
     #----------------------------------------------------------------------
     def validate_observation(self, observation):
-        if not observation:
+        if observation.size==0:
             raise sciunit.ObservationError("Observation is empty!")
 
     #----------------------------------------------------------------------
