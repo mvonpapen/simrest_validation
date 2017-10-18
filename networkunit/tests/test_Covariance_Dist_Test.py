@@ -75,12 +75,12 @@ class DisCo_Test_State(sciunit.Test):
         for sts_segs in sts_exp:                    
             self.format_data(sts_segs)
         observation = self.covariance_analysis(sts_exp)  
-        print 'got observation'
         observation = observation[self.neu_type]
+        print 'got observation'
         self.figures = []
         sciunit.Test.__init__(self, observation, name)
-
         self.directory_output = './output/'
+        print 'finished init'
             
         
     #----------------------------------------------------------------------
@@ -191,7 +191,6 @@ class DisCo_Test_State(sciunit.Test):
                with auto-covariances set to nan
         '''
         covm, neu_types = self.cross_covariance(sts, binsize=binsize)
-        print 'got covariance matrix'
         C   = dict()   
         for nty in set(neu_types):
             ids = np.where([neu_types[i]==nty for i in xrange(len(covm))])[0]
