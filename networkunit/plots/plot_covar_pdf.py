@@ -14,7 +14,7 @@ class covar_pdf:
 
     def __init__(self, testObj):
         self.testObj = testObj
-        self.filename = "covar_pdf_"+self.neu_type
+        self.filename = "covar_pdf_"+self.testObj.neu_type
 
     def create(self):
         fig = plt.figure()

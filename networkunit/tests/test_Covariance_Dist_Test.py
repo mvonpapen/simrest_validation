@@ -150,11 +150,11 @@ class DisCo_Test_State(sciunit.Test):
         # create relevant output files
         # 1. Plot of pdf's
         pdf_plot = plots.covar_pdf(self)
-        file1 = pdf_plot.create()
+        file1 = pdf_plot.create(self)
         self.figures.append(file1)
         # 2. Text Table
         txt_table = plots.mu_std_table(self)
-        file2 = txt_table.create()
+        file2 = txt_table.create(self)
         self.figures.append(file2)
         return self.score
 
