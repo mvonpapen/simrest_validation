@@ -17,7 +17,7 @@ class covar_pdf:
         self.filename = "covar_pdf_"+self.testObj.neu_type
 
     def create(self):
-        fig = plt.figure(figsize=(5,5))
+        fig = plt.figure(figsize=(2,2))
         obs = self.testObj.observation
         prd = self.testObj.prediction
         pdf_obs, __   = self.get_pdf(obs)
