@@ -27,9 +27,17 @@ class correlation_test(two_sample_test):
         super(correlation_test, self).__init__(observation=observation,
                                                name=name, **params)
 
-    @abstractmethod
     def generate_prediction(self, model, **kwargs):
-        raise NotImplementedError("")
+        # call the function of the required capability of the model
+        # and pass the parameters of the test class instance in case the
+        if kwargs:
+            self.params.update(kwargs)
+        if 'binsize' not in self.params and 'num_bins' not in self.params:
+            self.params['binsize'] = 2*ms
+        # check is model has already stored prediction
+        spiketrains = model.produce_spiketrains(**self.params)
+        return self.generate_correlations(spiketrains=spiketrains,
+                                         **self.params)
 
     def validate_observation(self, observation):
         # ToDo: Check if observation values are legit (non nan, positive, ...)
@@ -48,10 +56,7 @@ class correlation_test(two_sample_test):
                                 t_stop=t_stop)
 
     def generate_correlations(self, spiketrains=None, binary=False, **kwargs):
-        try:
-            self.cc_matrix
-        except:
-            self.generate_cc_matrix(spiketrains=spiketrains,
+        self.generate_cc_matrix(spiketrains=spiketrains,
                                     binary=binary, **kwargs)
         idx = np.triu_indices(len(self.cc_matrix), 1)
         return self.cc_matrix[idx]
@@ -78,25 +83,22 @@ class correlation_test(two_sample_test):
             of spike trains.
         -------
         """
-        try:
-            return self.cc_matrix
-        except:
-            if spiketrains is None:
-                binned_sts = self.robust_BinnedSpikeTrain(self.spiketrains, **kwargs)
-            else:
-                binned_sts = self.robust_BinnedSpikeTrain(spiketrains, **kwargs)
+        if spiketrains is None:
+            binned_sts = self.robust_BinnedSpikeTrain(self.spiketrains, **kwargs)
+        else:
+            binned_sts = self.robust_BinnedSpikeTrain(spiketrains, **kwargs)
 
-            self.cc_matrix = corrcoef(binned_sts, binary=binary)
-            return self.cc_matrix
+        self.cc_matrix = corrcoef(binned_sts, binary=binary)
+        return self.cc_matrix
 
     def generate_cch_array(self, spiketrains, maxlag=None,
                            **kwargs):
-        try:
+        if not hasattr(self, 'cch_array'):
             return self.cch_array
-        except:
-            try:
+        else:
+            if 'binsize' in self.params:
                 binsize = self.params['binsize']
-            except:
+            else:
                 t_lims = [(st.t_start, st.t_stop) for st in spiketrains]
                 tmin = min(t_lims, key=lambda f: f[0])[0]
                 tmax = max(t_lims, key=lambda f: f[1])[1]

@@ -44,7 +44,9 @@ class stochastic_activity(sciunit.Model, ProducesSpikeTrains):
             self.correlations *= len(self.assembly_sizes)
         pass
 
-    def produce_spiketrains(self):
+    def produce_spiketrains(self, **kwargs):
+        if not self.spiketrains:
+            self.spiketrains = self.generate_spiketrains(**kwargs)
         return self.spiketrains
 
     def generate_spiketrains(self, **kwargs):
@@ -124,7 +126,8 @@ class stochastic_activity(sciunit.Model, ProducesSpikeTrains):
         amp_dist[A_size] = syncprob
         np.testing.assert_almost_equal(sum(amp_dist), 1., decimal=4)
         amp_dist *= (1. / sum(amp_dist))
-        return CPP(rate=self.rate, A=amp_dist,
+        ref_rate = self.rate * A_size / float(1+syncprob*(A_size-1))
+        return CPP(rate=ref_rate, A=amp_dist,
                    t_start=self.t_start, t_stop=self.t_stop)
 
     def _shift_spiketrains(self, assembly_sts):#
@@ -155,27 +158,33 @@ class stochastic_activity(sciunit.Model, ProducesSpikeTrains):
         if not cc:
             return 0.
         m0 = rate * T / (float(T)/float(binsize))
+        # ToDo: rate is given as expected rate but used as referemce rate!!!
         if type(m0) == quantity.Quantity:
             m0 = m0.rescale('dimensionless')
         n = float(A_size)
-        root = np.sqrt(cc ** 2 * n ** 2
-                       - 2 * cc ** 2 * n
-                       + cc ** 2
-                       + 4 * cc * m0 * n
-                       - 4 * cc * m0
-                       - 2 * cc * n ** 2
-                       + 2 * cc * n
-                       - 4 * m0 * n
-                       + 4 * m0
-                       + n ** 2)
-        adding = (- 2 * cc * m0 * n
-                  + 2 * cc * m0
-                  + cc * n ** 2
-                  - cc * n
-                  + 2 * m0 * n
-                  - 2 * m0
-                  - n ** 2)
+        root = np.sqrt((cc*n -cc-n)**2 + 4*m0*(cc*n-cc-n+1))
+        adding = (n-1)*(-2*cc*m0 + cc*n + 2*m0) - n**2
         denominator = 2 * (cc - 1.) * m0 * (n - 1.) ** 2
+        # root = np.sqrt(cc ** 2 * n ** 2
+        #                - 2 * cc ** 2 * n
+        #                + cc ** 2
+        #                + 4 * cc * m0 * n
+        #                - 4 * cc * m0
+        #                - 2 * cc * n ** 2
+        #                + 2 * cc * n
+        #                - 4 * m0 * n
+        #                + 4 * m0
+        #                + n ** 2)
+        #
+        # adding = (- 2 * cc * m0 * n
+        #           + 2 * cc * m0
+        #           + cc * n ** 2
+        #           - cc * n
+        #           + 2 * m0 * n
+        #           - 2 * m0
+        #           - n ** 2)
+        #
+        # denominator = 2 * (cc - 1.) * m0 * (n - 1.) ** 2
         sync_prob = (n * root + adding) / denominator
         if type(sync_prob) == quantity.Quantity:
             if bool(sync_prob.dimensionality):
