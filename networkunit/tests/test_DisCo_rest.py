@@ -37,18 +37,19 @@ from json import load as Janson
 
 
 #%% ==============================================================================
-class DisCo_Test_State(sciunit.Test):
+
+class DisCo_rest(sciunit.Test):
     """
     Tests for equal variances of cross-covariances of neural network simulation
     against experimental data obtained from Utah array in (pre)motor cortex of 
-    macaque monkey during resting state (state = rest, movement)
+    macaque monkey during resting state
     """
     score_type = netsco.LeveneScore
     id = -1## TODO ## dont know what to set here
 
     def __init__(self, 
                  client=None,
-                 name="Distribution of covariances in macaque motor cortex"):
+                 name="Covariance dist. - resting state - motor cortex"):
         description = ("Tests the covariance distribution of motor cortex "
                        +"during resting state")
         self.units = quantities.um
@@ -64,8 +65,6 @@ class DisCo_Test_State(sciunit.Test):
             client.download_file(COLLAB_PATH + 'data/i140701-004-04.nev', './i140701-004-04.nev')
         if not os.path.isfile('i140701-004-04.txt'): 
             client.download_file(COLLAB_PATH + 'data/i140701-004-04.txt', './i140701-004-04.txt')
-        if not os.path.isfile('nikos2_segments_coarse.txt'): 
-            client.download_file(COLLAB_PATH + 'data/segments_coarse.txt', './nikos2_segments_coarse.txt')
         print 'downloaded raw data from collab #2493'
         # set path
         datadir = './'
@@ -75,12 +74,11 @@ class DisCo_Test_State(sciunit.Test):
         for sts_segs in sts_exp:                    
             self.format_data(sts_segs)
         observation = self.covariance_analysis(sts_exp)
-        observation = observation[self.neu_type]
         self.figures = []
         sciunit.Test.__init__(self, observation, name)
+
         self.directory_output = './output/'
-            
-        
+
     #----------------------------------------------------------------------
 
 
@@ -117,19 +115,13 @@ class DisCo_Test_State(sciunit.Test):
         pass
 
     #----------------------------------------------------------------------
-    def validate_observation(self, observation):
-        if observation.size==0:
-            raise sciunit.ObservationError("Observation is empty!")
-
-    #----------------------------------------------------------------------
 
     def generate_prediction(self, model, verbose=False):
-        """Implementation of sciunitc.Test.generate_prediction."""
+        """Implementation of sciunit.Test.generate_prediction."""
         self.model_name = model.name
         sts = model.spiketrains
         self.format_data(sts)
         prediction = self.covariance_analysis(sts)
-        prediction = prediction[self.neu_type]
         return prediction
 
     #----------------------------------------------------------------------
@@ -141,7 +133,7 @@ class DisCo_Test_State(sciunit.Test):
         self.score.description = "A Levene Test score"
 
         # create output directory
-        self.path_test_output = self.directory_output + 'disco_test/' + self.model_name + '/'
+        self.path_test_output = self.directory_output + 'covariance_dist_test/' + self.model_name + '/'
         if not os.path.exists(self.path_test_output):
             os.makedirs(self.path_test_output)
 
@@ -149,7 +141,7 @@ class DisCo_Test_State(sciunit.Test):
         self.prediction  = prediction
         # create relevant output files
         # 1. Plot of pdf's
-        pdf_plot = plots.covar_pdf(self)
+        pdf_plot = plots.covar_pdf_ei(self)
         file1 = pdf_plot.create()
         self.figures.append(file1)
         # 2. Text Table
@@ -178,13 +170,13 @@ class DisCo_Test_State(sciunit.Test):
             nbins: number of bins within binrange
         OUTPUT:
             C: dictionary of exc/inh containing elements covariance matrices
-               with auto-covariances set to nan
         '''
-        covm, neu_types = self.cross_covariance(sts, binsize=binsize)
+        covm = self.cross_covariance(sts, binsize=binsize)
+        neu_types = self.get_neuron_types(sts)
         C   = dict()   
         for nty in set(neu_types):
-            ids = np.where([neu_types[i]==nty for i in xrange(len(covm))])[0]
-            C[nty] = self.get_Cei(covm, ids) 
+            ids = np.where([neu_types[i]==nty for i in xrange(len(sts))])[0]
+            C[nty] = self.get_Cei(covm, ids)       
         return C
             
         
@@ -203,20 +195,17 @@ class DisCo_Test_State(sciunit.Test):
             minNspk spikes, otherwise assigned value is NaN. Diagonal is NaN
         '''
         # for prediction: list of neo spiketrains, no concatenation needed
-        if type(sts[0]) is neo.core.spiketrain.SpikeTrain:
-            neu_types = self.get_neuron_types(sts)
-            binned = elephant.conversion.BinnedSpikeTrain(sts, binsize = binsize).to_array()
+        if sts[0] is neo.core.spiketrain.SpikeTrain:
+            binned = elephant.conversion.BinnedSpikeTrain(sts, binsize = binsize)
         else:
             Ntrial, _ = np.shape(sts)
-            neu_types = self.get_neuron_types(sts[0,:])
             st_binned = [elephant.conversion.BinnedSpikeTrain(sts[i,:], binsize = binsize) 
                 for i in xrange(Ntrial)]
             binned    = np.hstack( (st_binned[i].to_array() for i in xrange(Ntrial)) )
-        covm = np.cov(binned)  
-        np.fill_diagonal(covm, np.nan)     
-        return covm, neu_types
-     
-
+        covm = np.cov(binned)
+        return covm
+    
+    
             
     def get_Cei(self, covm, ids):
         '''
@@ -267,16 +256,18 @@ class DisCo_Test_State(sciunit.Test):
                                    nsx_to_load = 2, load_waveforms = True)
         # load only those spike trains with annotation 'sua' = True
         sts = np.asarray([ st for st in block.segments[0].spiketrains
-                           if st.annotations['sua'] ])       
-        sts_state = self.load_state(sts)
-        self.neuron_type_separation(sts_state[0,:], 
-                                    eiThres=eiThres,
-                                    class_file=class_file)   
-        return sts_state
+                           if st.annotations['sua'] ])
+        if class_file is not None:         
+            self.neuron_type_separation(sts, 
+                                        eiThres=eiThres,
+                                        class_file=class_file)                       
+        print 'Nikos2 data loaded'      
+        sts_rest = self.load_rest_state(sts)
+        return sts_rest
         
         
         
-    def load_state(self, sts):
+    def load_rest_state(self, sts):
         '''
         Sorts data into periods of rest  
         INPUT:
@@ -284,11 +275,11 @@ class DisCo_Test_State(sciunit.Test):
         OUTPUT:
             sts: list of list neo SpikeTrains with N(rest_periods) x N(units)
         '''
-        sts_state = []
-        df = open('./nikos2_segments_coarse.txt')
+        sts_rest = []
+        df = open('./simrest_validation/nikos2_segments_coarseM.txt')
         segdict = Janson(df)
         df.close()
-        segs = np.array(segdict[self.state])
+        segs = np.array(segdict['RS'])
         lenSTS  = np.int(sts[0].t_stop.magnitude/sts[0].sampling_rate.magnitude)
         for elem in segs:
             t_start = np.int(elem[0])
@@ -296,10 +287,9 @@ class DisCo_Test_State(sciunit.Test):
             tmp = []
             for x in sts:
                 tmp.append(x.time_slice(t_start*pq.s,t_stop*pq.s))
-            sts_state.append(np.asarray(tmp))
-        sts_state = np.array(sts_state)
-        print 'Filtered for {}.'.format(self.state)
-        return sts_state 
+            sts_rest.append(np.asarray(tmp))
+        sts_rest = np.array(sts_rest)
+        return sts_rest      
 
 
 
@@ -337,14 +327,13 @@ class DisCo_Test_State(sciunit.Test):
             sts[i].annotations['neu_type'] = 'inh'
         for i in mix:
             sts[i].annotations['neu_type'] = 'mix'
-        print 'Classification of {} total units resulted in '\
-              '{} ({:0.1f}%) putative excitatory, '\
-              '{} ({:0.1f}%) putative inhibitory, '\
-              'and {} ({:0.1f}%) unclassified units'.format(
-                Nunits, 
-                len(exc), float(len(exc))/Nunits*100., 
-                len(inh), float(len(inh))/Nunits*100.,
-                len(mix), float(len(mix))/Nunits*100.)
+        print '\n## Classification of waveforms resulted in:'
+        print '{}/{} ({:0.1f}%) neurons classified as putative excitatory'.format(
+            len(exc), Nunits, float(len(exc))/Nunits*100.)
+        print '{}/{} ({:0.1f}%) neurons classified as putative inhibitory'.format(
+            len(inh), Nunits, float(len(inh))/Nunits*100.)
+        print '{}/{} ({:0.1f}%) neurons unclassified (mixed)\n'.format(
+            len(mix), Nunits, float(len(mix))/Nunits*100.)
             
             
 
@@ -777,23 +766,3 @@ class RestingStateIO(BlackrockIO):
                     else:
                         unit.annotations['sua'] = False
         return block        
-        
-        
-       
-#%% ==============================================================================        
-
-class DisCo_Test_Rest_Exc(DisCo_Test_State):
-    state    = 'RS'
-    neu_type = 'exc'
-        
-class DisCo_Test_Move_Exc(DisCo_Test_State):
-    state    = 'M'       
-    neu_type = 'exc'
-
-class DisCo_Test_Rest_Inh(DisCo_Test_State):
-    state    = 'RS'
-    neu_type = 'inh'
-                         
-class DisCo_Test_Move_Inh(DisCo_Test_State):
-    state    = 'M'       
-    neu_type = 'inh'
