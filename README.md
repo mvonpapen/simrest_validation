@@ -1,4 +1,8 @@
 # simrest_validation
+
+!! This git repository is outdated. Please see INM-6/NetworkUnit.git !!
+
+
 Simulation of resting state activity in macaque cortex and its validation with respect to experimental data
 
 This git repository is dedicated to the validation of models of resting state activity in cortex by comparison of simulation results to experimental recordings.
